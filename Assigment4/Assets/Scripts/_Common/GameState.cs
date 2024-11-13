@@ -6,7 +6,11 @@ public class GameState
 {
     // Start is called before the first frame update
     public int Size { get; private set; }
+    public int NumPlayer { get; private set; }
     private (int, int) [][] cells; // (-1, -1) means empty cell, first item indicates the player that owns the chess, second item is the type of the chess
+    List<int> lordsHP; // lords HP of all players
+    List<int> energies; // energy of all players
+    List<List<Vector2Int>> spawnLocations // locations for spawning chess of all player
 
     public GameState(int size)
     {
@@ -32,6 +36,30 @@ public class GameState
             cells[i][j] = val;
         }
         
+    }
+
+    public int GetLordHP(int player)
+    {
+        return lordsHP[player];
+    }
+
+    public void SetLordHP(int player, int hp)
+    {
+        lordsHP[player] = Mathf.Max(hp, 0);
+    }
+
+    public int GetEnergy(int player)
+    {
+        return energies[player];
+    }
+
+    public void SetEnergy(int player, int energy)
+    {
+        if (energy > GameConstants.MaxEnergy)
+            energies[player] = GameConstants.MaxEnergy;
+
+        if (energy < 0)
+            energies[player] = 0;
     }
 
     public GameState ShallowCopy()

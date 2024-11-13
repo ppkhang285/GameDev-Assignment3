@@ -6,7 +6,7 @@ public class GameplayManager : MonoBehaviour
 {
 
     private int deckSize;
-    private int numPlayer;
+    public int NumPlayer { get; private set; }
     private BaseCharacter[][] pieces;
     private GameState gameState;
     private int maxAP;
@@ -28,6 +28,7 @@ public class GameplayManager : MonoBehaviour
     {
         if (defeated[currentPlayer]) return new List<Move>();
         List<Move> moves = new List<Move>();
+        moves.Add(new Move(new Vector2Int(-1, -1), new Vector2Int(-1, -1), MoveType.Idle));
         int size = gameState.Size;
         for (int i = 0; i < deckSize; i++)
         {
@@ -74,10 +75,6 @@ public class GameplayManager : MonoBehaviour
     {
         List<List<Move>> moveSequences = new List<List<Move>>();
 
-        // Add "do nothing" (0 moves)
-        moveSequences.Add(new List<Move>());
-
-        // Generate sequences dynamically
         GenerateMoveSequencesRecursive(gameState, new List<Move>(), currentPlayer, maxAP, moveSequences);
 
         return moveSequences;
@@ -102,7 +99,10 @@ public class GameplayManager : MonoBehaviour
             currentSequence.Add(move);
 
             // Recurse to generate further sequences
-            GenerateMoveSequencesRecursive(nextGameState, currentSequence, currentPlayer, remainingMoves - 1, moveSequences);
+            if (move.Type == MoveType.Spawn)
+                GenerateMoveSequencesRecursive(nextGameState, currentSequence, currentPlayer, remainingMoves, moveSequences);
+            else
+                GenerateMoveSequencesRecursive(nextGameState, currentSequence, currentPlayer, remainingMoves - 1, moveSequences);
 
             // Backtrack to explore other options
             currentSequence.RemoveAt(currentSequence.Count - 1);

@@ -17,7 +17,7 @@ public abstract class BaseAI
 
     public abstract List<Move> GetMove(GameState gameState, int currentPlayer);
 
-    public float Evaluate(GameState gameState)
+    public List<float> Evaluate(GameState gameState)
     {
         if (model != null)
         {
@@ -26,8 +26,19 @@ public abstract class BaseAI
         }
         else
         {
-            // Use fallback evaluation function
-            return gameplayManager.Evaluate(gameState);
+            // Use default evaluation function
+            
         }
+    }
+
+    protected void TrainModel(GameState gameState, List<float> value)
+    {
+        if (model == null) return;
+
+        // Convert game state to feature vectors
+        float[] inputFeatures = gameState.ToFeatures();
+
+        // Train the model
+        model.Train(inputFeatures, value);
     }
 }

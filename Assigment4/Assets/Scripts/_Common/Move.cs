@@ -5,7 +5,9 @@ using UnityEngine;
 public enum MoveType
 {
     CharAttack,
-    CharMove
+    CharMove,
+    Spawn,
+    Idle
 }
 
 public class Move
