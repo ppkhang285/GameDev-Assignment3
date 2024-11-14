@@ -6,6 +6,7 @@ public class GameplayManager : MonoBehaviour
 {
 
     public int DeckSize { get; private set; }
+    public int BoardSize { get; private set; }
     public int NumPlayer { get; private set; }
     private BaseCharacter[][] pieces;
     private GameState gameState;
@@ -87,7 +88,6 @@ public class GameplayManager : MonoBehaviour
         moves.AddRange(GetLegalSpawn(gameState, currentPlayer));
 
         // Move or attack
-        int size = gameState.Size;
         for (int i = 0; i < DeckSize; i++)
         {
             BaseCharacter chessPiece = pieces[currentPlayer][i];
@@ -102,7 +102,7 @@ public class GameplayManager : MonoBehaviour
                 {
                     for (int k = -movementRange; k <= movementRange; k++)
                     {
-                        if (location.x + j < 0 || location.x + j >= size || location.y + k < 0 || location.y + k >= size) continue;
+                        if (location.x + j < 0 || location.x + j >= BoardSize || location.y + k < 0 || location.y + k >= BoardSize) continue;
                         if (j != 0 && k != 0) continue;
                         if (gameState.GetCell(i, j).Item1 == -1) // Cell is empty
                         {
@@ -118,7 +118,7 @@ public class GameplayManager : MonoBehaviour
                 {
                     for (int k = -attackRange; k <= attackRange; k++)
                     {
-                        if (location.x + j < 0 || location.x + j >= size || location.y + k < 0 || location.y + k >= size) continue;
+                        if (location.x + j < 0 || location.x + j >= BoardSize || location.y + k < 0 || location.y + k >= BoardSize) continue;
                         if (j != 0 && k != 0) continue;
                         if (gameState.GetCell(i, j).Item1 != -1 && gameState.GetCell(i, j).Item1 != currentPlayer) // Cell is not empty and the piece in the cell is of enemy team 
                         {

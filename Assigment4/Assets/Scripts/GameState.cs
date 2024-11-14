@@ -1,26 +1,37 @@
 using System.Collections;
 using System.Linq;
+using System
 using System.Collections.Generic;
 using UnityEngine;
 
 public class GameState
 {
-    public int Size { get; private set; } // Size of the board
     public int Turn { get; set; } // Current turn in the game
     private (int, int, int) [][] cells; // (-1, -1, 0) means empty cell, first item indicates the player that owns the chess, second item is the type of the chess, third item is its current hp
     int[] lordsHP; // Lord's HP of all players
     int[] energies; // Energy of all players
     List<List<Vector2Int>> spawnLocations; // Locations for spawning chess of all player
 
-    public GameState(int size)
+    public GameState(int turn, (int, int, int) [][] cells, int[] lordsHP, int[] energies, List<List<Vector2Int>> spawnLocations)
     {
-        // TODO: implement constructor
-        Size = size;
-        for (int i = 0; i < size; i++)
+        Turn = turn;
+
+        for (int i = 0; i < cells.Length; i++)
         {
-            for (int j = 0; j < size; j++)
+            for (int j = 0; j < cells.Length; j++)
             {
-                this.cells[i][j] = (-1, -1, 0); // initialize empty cells, TODO: intialize cells for lords
+                this.cells[i][j] = cells[i][j]; 
+            }
+        }
+
+        Array.Copy(lordsHP, this.lordsHP, lordsHP.Length);
+        Array.Copy(energies, this.energies, energies.Length);
+
+        for (int i = 0; i < spawnLocations.Count; i++)
+        {
+            for (int j = 0; j < spawnLocations[i].Count; j++)
+            {
+                this.spawnLocations[i][j] = spawnLocations[i][j];
             }
         }
     }
