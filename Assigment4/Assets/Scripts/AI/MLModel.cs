@@ -92,7 +92,7 @@ public class MLModel : MonoBehaviour
     /// <summary>
     /// Trains the model using a single board state and its target payoffs.
     /// </summary>
-    public void Train(float[] inputFeatures, List<float> targetPayoffs)
+    public void Train(float[] inputFeatures, float[] targetPayoffs)
     {
         float[] hiddenLayer = new float[hiddenSize];
         float[] outputLayer = new float[outputSize];

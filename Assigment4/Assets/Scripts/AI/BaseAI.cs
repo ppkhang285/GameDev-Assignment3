@@ -17,7 +17,7 @@ public abstract class BaseAI
 
     public abstract List<Move> GetMove(GameState gameState, int currentPlayer);
 
-    public List<float> Evaluate(GameState gameState)
+    public float[] Evaluate(GameState gameState)
     {
         if (model != null)
         {
@@ -31,7 +31,7 @@ public abstract class BaseAI
         }
     }
 
-    protected void TrainModel(GameState gameState, List<float> value)
+    protected void TrainModel(GameState gameState, float[] value)
     {
         if (model == null) return;
 

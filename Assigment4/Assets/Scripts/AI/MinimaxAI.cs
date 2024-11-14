@@ -1,50 +1,48 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class MinimaxAI : BaseAI
 {
     private int maxDepth;
+    private string method;
 
-    public MinimaxAI(GameplayManager gameplayManager, int depth, MLModel model = null) : base(gameplayManager, model)
+    public MinimaxAI(GameplayManager gameplayManager, int depth, MLModel model = null, string method = "minimax" ) : base(gameplayManager, model)
     {
         maxDepth = depth;
     }
 
     public override List<Move> GetMove(GameState gameState, int currentPlayer)
     {
-        float bestValue = float.NegativeInfinity;
-        List<Move> bestSequence = null;
-
-        foreach (List<Move> sequence in gameplayManager.GetMoveSequences(gameState, currentPlayer))
+        if (method == "minimax")
         {
-            GameState newState = gameplayManager.SimulateMoveSequence(gameState, sequence, currentPlayer);
-            List<float> value = Minimax(newState, maxDepth - 1, gameplayManager.GetNextPlayer(currentPlayer));
-
-            if (value[currentPlayer] > bestValue)
-            {
-                bestValue = value[currentPlayer];
-                bestSequence = sequence;
-            }
+            return Minimax(gameState, maxDepth, currentPlayer).Item2;
+        } else
+        {
+            float[] alpha = new float[gameplayManager.NumPlayer].Select(_ => float.NegativeInfinity).ToArray();
+            float[] beta = new float[gameplayManager.NumPlayer].Select(_ => float.PositiveInfinity).ToArray();
+            return AlphaBeta(gameState, maxDepth, currentPlayer, alpha, beta).Item2;
         }
-
-        return bestSequence;
     }
 
-    private List<float> Minimax(GameState gameState, int depth, int currentPlayer)
+    private (float[] bestOutcome, List<Move> bestSequence) Minimax(GameState gameState, int depth, int currentPlayer)
     {
-        if (depth == 0 || gameState.IsGameOver(currentPlayer))
+        // If maximum depth is reached or the game is over for the current player
+        if (depth == 0 || gameplayManager.HasWon(currentPlayer) || gameplayManager.IsDefeated(currentPlayer))
         {
-            return Evaluate(gameState);
+            return (Evaluate(gameState), null); 
         }
 
         float bestValue = float.NegativeInfinity;
-        List<float> outcome = new List<float>();
+        float[] outcome = new float[gameplayManager.NumPlayer];
+        List<Move> bestSequence = null;
 
-        foreach (List<Move> sequence in gameplayManager.GetMoveSequences(gameState, currentPlayer))
+        List<List<Move>> moveSequences = gameplayManager.GetMoveSequences(gameState, currentPlayer);
+        foreach (List<Move> sequence in moveSequences)
         {
             GameState newState = gameplayManager.SimulateMoveSequence(gameState, sequence, currentPlayer);
-            List<float> value = Minimax(newState, depth - 1, gameplayManager.GetNextPlayer(currentPlayer));
+            float[] value = Minimax(newState, depth - 1, gameplayManager.GetNextPlayer(currentPlayer)).Item1;
 
             TrainModel(newState, value);
 
@@ -52,40 +50,69 @@ public class MinimaxAI : BaseAI
             {
                 bestValue = value[currentPlayer];
                 outcome = value;
+                bestSequence = sequence;
             }
         }
 
-        return outcome;
+        return (outcome, bestSequence);
     }
 
-    private List<float> AlphaBetaSearch(GameState gameState, int depth, float alpha, float beta, int currentPlayer)
+    private (float[] bestOutcome, List<Move> bestSequence) AlphaBeta(GameState gameState, int depth, int currentPlayer, float[] alpha, float[] beta)
     {
-        if (depth == 0 || gameplayManager.IsGameOver(currentPlayer))
+        if (depth == 0 || gameplayManager.HasWon(currentPlayer) || gameplayManager.IsDefeated(currentPlayer))
         {
-            return Evaluate(gameState);
+            return (Evaluate(gameState), null);
         }
 
-        List<float> bestOutcome = new List<float>();
-        bestOutcome.AddRange(Enumerable.Repeat(float.NegativeInfinity, gameplayManager.NumPlayer));
+        float[] bestOutcome = new float[gameplayManager.NumPlayer];
+        List<Move> bestSequence = null;
 
         foreach (List<Move> sequence in gameplayManager.GetMoveSequences(gameState, currentPlayer))
         {
             GameState newState = gameplayManager.SimulateMoveSequence(gameState, sequence, currentPlayer);
-            List<float> value = AlphaBetaSearch(newState, depth - 1, alpha, beta, gameplayManager.GetNextPlayer(currentPlayer));
+            float[] value = AlphaBeta(
+                newState,
+                depth - 1,
+                gameplayManager.GetNextPlayer(currentPlayer),
+                (float[])alpha.Clone(),
+                (float[])beta.Clone()
+            ).Item1;
 
-            if (value[currentPlayer] > bestOutcome[currentPlayer])
+            TrainModel(newState, value);
+
+            if (bestOutcome == null || value[currentPlayer] > alpha[currentPlayer])
             {
-                bestOutcome[currentPlayer] = value[currentPlayer];
+                bestOutcome = value;
+                bestSequence = sequence;
+                alpha[currentPlayer] = value[currentPlayer];
             }
 
-            // Alpha-beta pruning
-            alpha = Mathf.Max(alpha, bestOutcome[currentPlayer]);
-            if (alpha >= beta)
+            // Prune the branch if another player can ensure a worse outcome for this player
+            bool shouldPrune = false;
+            for (int i = 0; i < alpha.Length; i++)
+            {
+                if (i != currentPlayer && alpha[i] >= beta[i])
+                {
+                    shouldPrune = true;
+                    break;
+                }
+            }
+
+            if (shouldPrune)
             {
                 break;
             }
+
+            // Update beta for other players
+            for (int i = 0; i < beta.Length; i++)
+            {
+                if (i != currentPlayer)
+                {
+                    beta[i] = Mathf.Min(beta[i], value[i]);
+                }
+            }
         }
 
-        return bestOutcome;
+        return (bestOutcome, bestSequence);
     }
 }

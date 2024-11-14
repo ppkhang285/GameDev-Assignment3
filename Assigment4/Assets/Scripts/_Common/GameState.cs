@@ -8,9 +8,10 @@ public class GameState
     public int Size { get; private set; }
     public int NumPlayer { get; private set; }
     private (int, int) [][] cells; // (-1, -1) means empty cell, first item indicates the player that owns the chess, second item is the type of the chess
-    List<int> lordsHP; // lords HP of all players
-    List<int> energies; // energy of all players
-    List<List<Vector2Int>> spawnLocations // locations for spawning chess of all player
+    List<int> lordsHP; // Lord's HP of all players
+    List<int> energies; // Energy of all players
+    List<List<Vector2Int>> spawnLocations; // Locations for spawning chess of all player
+    private List<bool> defeated;
 
     public GameState(int size)
     {
@@ -60,6 +61,11 @@ public class GameState
 
         if (energy < 0)
             energies[player] = 0;
+    }
+
+    public List<Vector2Int> GetSpawnLocation(int player)
+    {
+        return spawnLocations[player];
     }
 
     public GameState ShallowCopy()
