@@ -9,9 +9,10 @@ public static class GameConstants
     public const int EnergyPerTurn = 3;
     public const int TurnReceiveEnergy = 10;
     public const int MaxEnergy = StartEnergy + EnergyPerTurn * TurnReceiveEnergy;
-
+    
     // Game config
     public const int MaxPlayer = 4;
     public const int BoardSize = 10;
-
+    public const int MaxAP = 3;
+    public const int MaxCharacter = 5;
 }

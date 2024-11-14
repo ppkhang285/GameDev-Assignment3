@@ -20,7 +20,7 @@ public abstract class BaseCharacter : MonoBehaviour
     public Vector2Int Location { get; set; }
     public bool Spawned { get; set; }
     public bool Dead { get; set; }
-
+`
     void Start()
     {
         

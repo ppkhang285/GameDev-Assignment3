@@ -8,9 +8,7 @@ public class GameState
 {
     public int Turn { get; set; } // Current turn in the game
     private (int, int, int) [][] cells; // (-1, -1, 0) means empty cell, first item indicates the player that owns the chess, second item is the type of the chess, third item is its current hp
-    int[] lordsHP; // Lord's HP of all players
-    int[] energies; // Energy of all players
-    List<List<Vector2Int>> spawnLocations; // Locations for spawning chess of all player
+    Players[]  players; // list of players 
 
     public GameState(int turn, (int, int, int) [][] cells, int[] lordsHP, int[] energies, List<List<Vector2Int>> spawnLocations)
     {
