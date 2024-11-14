@@ -6,7 +6,7 @@ public abstract class BaseCharacter : MonoBehaviour
 {
     // Start is called before the first frame update
     public int Cost { get; private set; }
-    public int HP { get; set; }
+    public int CurrentHP { get; set; }
     public int Damage { get; private set; }
     public int AttackRange { get; private set; }
     public int MovementRange { get; private set; }

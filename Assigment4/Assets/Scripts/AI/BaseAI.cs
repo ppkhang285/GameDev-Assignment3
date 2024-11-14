@@ -27,8 +27,31 @@ public abstract class BaseAI
         else
         {
             // Use default evaluation function
-            
+            float[] evaluations = new float[gameplayManager.NumPlayer];
+            for (int i = 0; i < gameplayManager.NumPlayer; i++)
+            {
+                evaluations[i] = CalculatePoints(gameState, i);
+            }
+            return evaluations;
         }
+    }
+
+    private float CalculatePoints(GameState gameState, int player)
+    {
+        float points = 0;
+        
+        // Points equal to Cost of all chess pieces belonging to the player * its percentage of health left
+        for (int i = 0; i < gameState.Size; i++)
+        {
+            for (int j = 0; j < gameState.Size; j++)
+            {
+                (int, int, int) cell = gameState.GetCell(i, j);
+                if (cell.Item1 != player) continue;
+                BaseCharacter chess = gameplayManager.GetPiece(player, cell.Item2);
+                points += chess.Cost * cell.Item3 / chess.HP;
+            }
+        }
+        return points;
     }
 
     protected void TrainModel(GameState gameState, float[] value)
@@ -36,7 +59,7 @@ public abstract class BaseAI
         if (model == null) return;
 
         // Convert game state to feature vectors
-        float[] inputFeatures = gameState.ToFeatures();
+        List<float> inputFeatures = gameState.ToFeatures();
 
         // Train the model
         model.Train(inputFeatures, value);

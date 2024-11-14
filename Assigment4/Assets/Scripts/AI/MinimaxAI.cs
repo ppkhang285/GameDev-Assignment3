@@ -11,6 +11,7 @@ public class MinimaxAI : BaseAI
     public MinimaxAI(GameplayManager gameplayManager, int depth, MLModel model = null, string method = "minimax" ) : base(gameplayManager, model)
     {
         maxDepth = depth;
+        this.method = method;
     }
 
     public override List<Move> GetMove(GameState gameState, int currentPlayer)

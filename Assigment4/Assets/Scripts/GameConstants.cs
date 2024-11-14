@@ -13,4 +13,5 @@ public static class GameConstants
     // Game config
     public const int MaxPlayer = 4;
     public const int BoardSize = 10;
+
 }

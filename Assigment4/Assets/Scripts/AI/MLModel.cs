@@ -60,7 +60,7 @@ public class MLModel : MonoBehaviour
     /// <summary>
     /// Predicts the payoff vector for all players given the game state.
     /// </summary>
-    public float[] Predict(float[] inputFeatures)
+    public float[] Predict(List<float> inputFeatures)
     {
         float[] hiddenLayer = new float[hiddenSize];
         float[] outputLayer = new float[outputSize];
@@ -92,7 +92,7 @@ public class MLModel : MonoBehaviour
     /// <summary>
     /// Trains the model using a single board state and its target payoffs.
     /// </summary>
-    public void Train(float[] inputFeatures, float[] targetPayoffs)
+    public void Train(List<float> inputFeatures, float[] targetPayoffs)
     {
         float[] hiddenLayer = new float[hiddenSize];
         float[] outputLayer = new float[outputSize];

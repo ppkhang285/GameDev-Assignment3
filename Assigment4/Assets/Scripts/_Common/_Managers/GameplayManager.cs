@@ -5,23 +5,48 @@ using UnityEngine;
 public class GameplayManager : MonoBehaviour
 {
 
-    private int deckSize;
+    public int DeckSize { get; private set; }
     public int NumPlayer { get; private set; }
     private BaseCharacter[][] pieces;
     private GameState gameState;
     private int maxAP;
     private bool[] defeated;
 
-    // Start is called before the first frame update
-    void Start()
+    public GameplayManager(int deckSize, int numPlayer, int boardSize)
     {
-
+        // TODO: implement constructor
     }
 
-    // Update is called once per frame
-    void Update()
+    public BaseCharacter GetPiece(int player, int index)
     {
+        return pieces[player][index];
+    }
 
+    public int GetNextPlayer(int currentPlayer)
+    {
+        return (currentPlayer + 1) % NumPlayer; // TODO: Change logic later when a player is defeated;
+    }
+
+    // Check if player has won
+    public bool HasWon(int player)
+    {
+        if (defeated[player]) return false;
+        bool hasWon = true;
+
+        // Other players are defeated
+        for (int i = 0; i < NumPlayer; i++)
+        {
+            if (i != player && !defeated[i])
+                hasWon = false;
+        }
+
+        return hasWon;
+    }
+
+    // Check if player is defeated
+    public bool IsDefeated(int player)
+    {
+        return defeated[player];
     }
 
     // Return possible chess spawn
@@ -37,7 +62,7 @@ public class GameplayManager : MonoBehaviour
             {
                 continue;
             }
-            for (int i = 0; i < deckSize; i++)
+            for (int i = 0; i < DeckSize; i++)
             {
                 BaseCharacter chessPiece = pieces[currentPlayer][i];
                 if (!chessPiece.Spawned && chessPiece.AP <= gameState.GetEnergy(currentPlayer)) // Chess is not spawned and enough energy to spawn
@@ -63,7 +88,7 @@ public class GameplayManager : MonoBehaviour
 
         // Move or attack
         int size = gameState.Size;
-        for (int i = 0; i < deckSize; i++)
+        for (int i = 0; i < DeckSize; i++)
         {
             BaseCharacter chessPiece = pieces[currentPlayer][i];
             if (chessPiece.Spawned && !chessPiece.Dead) // Chess is spawned and not dead
@@ -172,7 +197,7 @@ public class GameplayManager : MonoBehaviour
 
     public GameState SimulateMoveSequence(GameState gameState, List<Move> moves, int currentPlayer)
     {
-        GameState newState = gameState;
+        GameState newState = gameState.ShallowCopy();
         // Apply the moves sequentially
         foreach (Move move in moves)
         {
@@ -186,30 +211,4 @@ public class GameplayManager : MonoBehaviour
         gameState = SimulateMoveSequence(gameState, move, currentPlayer);
     }
 
-    public int GetNextPlayer(int currentPlayer)
-    {
-        return (currentPlayer + 1) % NumPlayer; // TODO: Change logic later when a player is defeated;
-    }
-
-    // Check if player has won
-    public bool HasWon(int player)
-    {
-        if (defeated[player]) return false;
-        bool hasWon = true;
-
-        // Other players are defeated
-        for (int i = 0; i < NumPlayer; i++)
-        {
-            if (i != player && !defeated[i])
-                hasWon = false;
-        }
-
-        return hasWon;
-    }
-
-    // Check if player is defeated
-    public bool IsDefeated(int player)
-    {
-        return defeated[player];
-    }
 }
