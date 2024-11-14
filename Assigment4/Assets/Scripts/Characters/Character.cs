@@ -2,14 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class BaseCharacter : MonoBehaviour
+public class Character : MonoBehaviour
 {
     // Start is called before the first frame update
-    public int Cost { get; private set; }
+    public CharacterStats characterStats;
     public int CurrentHP { get; set; }
-    public int Damage { get; private set; }
-    public int AttackRange { get; private set; }
-    public int MovementRange { get; private set; }
 
     private int _ap;
     public int AP {
@@ -20,16 +17,5 @@ public abstract class BaseCharacter : MonoBehaviour
     public Vector2Int Location { get; set; }
     public bool Spawned { get; set; }
     public bool Dead { get; set; }
-
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 
 }

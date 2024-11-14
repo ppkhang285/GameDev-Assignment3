@@ -47,8 +47,8 @@ public abstract class BaseAI
             {
                 (int, int, int) cell = gameState.GetCell(i, j);
                 if (cell.Item1 != player) continue;
-                BaseCharacter chess = gameplayManager.GetPiece(player, cell.Item2);
-                points += chess.Cost * cell.Item3 / chess.HP;
+                Character chess = gameplayManager.GetPiece(player, cell.Item2);
+                points += chess.characterStats.cost * chess.CurrentHP / chess.characterStats.hp;
             }
         }
         return points;

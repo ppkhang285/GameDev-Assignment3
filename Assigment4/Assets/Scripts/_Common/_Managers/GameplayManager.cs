@@ -8,7 +8,7 @@ public class GameplayManager : MonoBehaviour
     public int DeckSize { get; private set; }
     public int BoardSize { get; private set; }
     public int NumPlayer { get; private set; }
-    private BaseCharacter[][] pieces;
+    private Character [][] pieces;
     private GameState gameState;
     private int maxAP;
     private bool[] defeated;
@@ -18,7 +18,7 @@ public class GameplayManager : MonoBehaviour
         // TODO: implement constructor
     }
 
-    public BaseCharacter GetPiece(int player, int index)
+    public Character GetPiece(int player, int index)
     {
         return pieces[player][index];
     }
@@ -65,7 +65,7 @@ public class GameplayManager : MonoBehaviour
             }
             for (int i = 0; i < DeckSize; i++)
             {
-                BaseCharacter chessPiece = pieces[currentPlayer][i];
+                Character chessPiece = pieces[currentPlayer][i];
                 if (!chessPiece.Spawned && chessPiece.AP <= gameState.GetEnergy(currentPlayer)) // Chess is not spawned and enough energy to spawn
                 {
                     moves.Add(new Move(spawnLocation, spawnLocation, MoveType.Spawn));
@@ -90,12 +90,12 @@ public class GameplayManager : MonoBehaviour
         // Move or attack
         for (int i = 0; i < DeckSize; i++)
         {
-            BaseCharacter chessPiece = pieces[currentPlayer][i];
-            if (chessPiece.Spawned && !chessPiece.Dead) // Chess is spawned and not dead
+            Character chessPiece = pieces[currentPlayer][i];
+            if (chessPiece.Spawned && !chessPiece.Dead && chessPiece.AP > 0) // Chess is spawned and not dead and still has AP
             {
                 Vector2Int location = chessPiece.Location;
-                int movementRange = chessPiece.MovementRange;
-                int attackRange = chessPiece.AttackRange;
+                int movementRange = chessPiece.characterStats.movementRange;
+                int attackRange = chessPiece.characterStats.attackRange;
 
                 // Possible cells to move
                 for (int j = -movementRange; j <= movementRange; j++)

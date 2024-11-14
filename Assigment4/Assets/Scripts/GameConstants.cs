@@ -14,4 +14,6 @@ public static class GameConstants
     public const int MaxPlayer = 4;
     public const int BoardSize = 10;
 
+
+    public const int TRANSITION_TIME = 4;
 }
