@@ -4,13 +4,14 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+[Serializable]
 public class GameState
 {
     public int Turn { get; set; } // Current turn in the game
     private (int, int, int) [][] cells; // (-1, -1, 0) means empty cell, first item indicates the player that owns the chess, second item is the type of the chess, third item is its current hp
     Players[]  players; // list of players 
 
-    public GameState(int turn, (int, int, int) [][] cells, int[] lordsHP, int[] energies, List<List<Vector2Int>> spawnLocations)
+    public GameState(int turn, (int, int, int) [][] cells, Players[] players)
     {
         Turn = turn;
 
@@ -22,16 +23,7 @@ public class GameState
             }
         }
 
-        Array.Copy(lordsHP, this.lordsHP, lordsHP.Length);
-        Array.Copy(energies, this.energies, energies.Length);
-
-        for (int i = 0; i < spawnLocations.Count; i++)
-        {
-            for (int j = 0; j < spawnLocations[i].Count; j++)
-            {
-                this.spawnLocations[i][j] = spawnLocations[i][j];
-            }
-        }
+        Array.Copy(players, this.players, players.Length); //TODO: may need to manually deep copy the players
     }
 
     public (int, int, int) GetCell(int i, int j)
@@ -48,38 +40,29 @@ public class GameState
         
     }
 
-    public int GetLordHP(int player)
+    public Players GetPlayer(int i)
     {
-        return lordsHP[player];
+        return players[i];
     }
 
-    public void SetLordHP(int player, int hp)
+    public bool HasLost(int currentPlayer)
     {
-        lordsHP[player] = Mathf.Max(hp, 0);
+        if (Turn > GameConstants.TurnReceiveEnergy)
+            return players[currentPlayer].IsDead();
+        else
+            return players[currentPlayer].LordHP <= 0;
     }
 
-    public int GetEnergy(int player)
+    public bool HasWon(int currentPlayer)
     {
-        return energies[player];
-    }
-
-    public void SetEnergy(int player, int energy)
-    {
-        if (energy > GameConstants.MaxEnergy)
-            energies[player] = GameConstants.MaxEnergy;
-
-        if (energy < 0)
-            energies[player] = 0;
-    }
-
-    public List<Vector2Int> GetSpawnLocation(int player)
-    {
-        return spawnLocations[player];
-    }
-
-    public GameState ShallowCopy()
-    {
-        return (GameState)this.MemberwiseClone();
+        for (int i = 0; i < players.Length; i++)
+        {
+            if (i != currentPlayer)
+            {
+                if (!HasLost(i)) return false;
+            }
+        }
+        return true;
     }
 
     public List<float> ToFeatures()
@@ -92,27 +75,14 @@ public class GameState
         {
             foreach (var cell in row)
             {
-                // Encode cell ownership and type:
-                features.Add(cell.Item1); // Owner
-                features.Add(cell.Item2); // Chess type
-                features.Add(cell.Item3); // Its current health
+                features.Add(cell.Item1); // Owner of the chess
             }
         }
 
         // Add each player's lord HP
-        features.AddRange(lordsHP.Select(hp => (float)hp));
-
-        // Add each player's energy
-        features.AddRange(energies.Select(energy => (float)energy));
-
-        // Add spawn locations (flattened into coordinates)
-        foreach (var locations in spawnLocations)
+        foreach (Players player in players)
         {
-            foreach (var loc in locations)
-            {
-                features.Add(loc.x);
-                features.Add(loc.y);
-            }
+            features.AddRange(player.ToFeatures());
         }
 
         return features;

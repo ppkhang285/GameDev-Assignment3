@@ -30,7 +30,7 @@ public class MinimaxAI : BaseAI
     private (float[] bestOutcome, List<Move> bestSequence) Minimax(GameState gameState, int depth, int currentPlayer)
     {
         // If maximum depth is reached or the game is over for the current player
-        if (depth == 0 || gameplayManager.HasWon(currentPlayer) || gameplayManager.IsDefeated(currentPlayer))
+        if (depth == 0 || gameState.HasWon(currentPlayer) || gameState.HasLost(currentPlayer))
         {
             return (Evaluate(gameState), null); 
         }
@@ -60,7 +60,7 @@ public class MinimaxAI : BaseAI
 
     private (float[] bestOutcome, List<Move> bestSequence) AlphaBeta(GameState gameState, int depth, int currentPlayer, float[] alpha, float[] beta)
     {
-        if (depth == 0 || gameplayManager.HasWon(currentPlayer) || gameplayManager.IsDefeated(currentPlayer))
+        if (depth == 0 || gameState.HasWon(currentPlayer) || gameState.HasLost(currentPlayer))
         {
             return (Evaluate(gameState), null);
         }

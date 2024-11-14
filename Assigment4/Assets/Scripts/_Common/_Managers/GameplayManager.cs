@@ -8,7 +8,7 @@ public class GameplayManager : MonoBehaviour
     public int DeckSize { get; private set; }
     public int BoardSize { get; private set; }
     public int NumPlayer { get; private set; }
-    private Character [][] pieces;
+    //private Character [][] pieces;
     private GameState gameState;
     private int maxAP;
     private bool[] defeated;
@@ -16,11 +16,6 @@ public class GameplayManager : MonoBehaviour
     public GameplayManager(int deckSize, int numPlayer, int boardSize)
     {
         // TODO: implement constructor
-    }
-
-    public Character GetPiece(int player, int index)
-    {
-        return pieces[player][index];
     }
 
     public int GetNextPlayer(int currentPlayer)
@@ -54,10 +49,11 @@ public class GameplayManager : MonoBehaviour
     public List<Move> GetLegalSpawn(GameState gameState, int currentPlayer)
     {
         if (defeated[currentPlayer]) return new List<Move>(); // If player is defeated, cannot do anything
+        Players player = gameState.GetPlayer(currentPlayer);
         List<Move> moves = new List<Move>();
 
         // Iterate through spawning locations
-        foreach (Vector2Int spawnLocation in gameState.GetSpawnLocation(currentPlayer))
+        foreach (Vector2Int spawnLocation in player.SpawnLocations)
         {
             if (gameState.GetCell(spawnLocation.x, spawnLocation.y).Item1 != -1) // Spawning location is not occupied by other chess 
             {
@@ -65,8 +61,8 @@ public class GameplayManager : MonoBehaviour
             }
             for (int i = 0; i < DeckSize; i++)
             {
-                Character chessPiece = pieces[currentPlayer][i];
-                if (!chessPiece.Spawned && chessPiece.AP <= gameState.GetEnergy(currentPlayer)) // Chess is not spawned and enough energy to spawn
+                Character chessPiece = player.Characters[i];
+                if (!chessPiece.Spawned && chessPiece.AP <= player.Energy) // Chess is not spawned and enough energy to spawn
                 {
                     moves.Add(new Move(spawnLocation, spawnLocation, MoveType.Spawn));
                 }
@@ -79,6 +75,7 @@ public class GameplayManager : MonoBehaviour
     public List<Move> GetLegalMoves(GameState gameState, int currentPlayer)
     {
         if (defeated[currentPlayer]) return new List<Move>(); // If player is defeated, cannot do anything
+        Players player = gameState.GetPlayer(currentPlayer);
         List<Move> moves = new List<Move>();
 
         // Doing nothing is also an option
@@ -90,7 +87,7 @@ public class GameplayManager : MonoBehaviour
         // Move or attack
         for (int i = 0; i < DeckSize; i++)
         {
-            Character chessPiece = pieces[currentPlayer][i];
+            Character chessPiece = player.Characters[i];
             if (chessPiece.Spawned && !chessPiece.Dead && chessPiece.AP > 0) // Chess is spawned and not dead and still has AP
             {
                 Vector2Int location = chessPiece.Location;
@@ -189,15 +186,17 @@ public class GameplayManager : MonoBehaviour
 
     public GameState SimulateMove(GameState gameState, Move move, int currentPlayer) // Simulate to get the game state after player's move, not actually change the game state
     {
+        GameState newState = DeepCopyUtility.DeepCopy(gameState);
         if (move.Type == MoveType.Idle) // Doing nothing does not change the game state
-            return gameState;
+            return newState;
 
         return null;
     }
 
     public GameState SimulateMoveSequence(GameState gameState, List<Move> moves, int currentPlayer)
     {
-        GameState newState = gameState.ShallowCopy();
+        GameState newState = DeepCopyUtility.DeepCopy(gameState);
+
         // Apply the moves sequentially
         foreach (Move move in moves)
         {

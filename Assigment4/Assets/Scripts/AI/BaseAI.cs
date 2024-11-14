@@ -36,18 +36,19 @@ public abstract class BaseAI
         }
     }
 
-    private float CalculatePoints(GameState gameState, int player)
+    private float CalculatePoints(GameState gameState, int currentPlayer)
     {
         float points = 0;
-        
+
         // Points equal to Cost of all chess pieces belonging to the player * its percentage of health left
+        Players player = gameState.GetPlayer(currentPlayer);
         for (int i = 0; i < gameplayManager.BoardSize; i++)
         {
             for (int j = 0; j < gameplayManager.BoardSize; j++)
             {
                 (int, int, int) cell = gameState.GetCell(i, j);
-                if (cell.Item1 != player) continue;
-                Character chess = gameplayManager.GetPiece(player, cell.Item2);
+                if (cell.Item1 != currentPlayer) continue;
+                Character chess = player.Characters[cell.Item2];
                 points += chess.characterStats.cost * chess.CurrentHP / chess.characterStats.hp;
             }
         }
