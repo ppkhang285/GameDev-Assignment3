@@ -11,6 +11,6 @@ namespace GameBase.Constants
 {
     public class GameConstants
     {
-        public static float TRANSITION_TIME = 1f;
+        public static float FIELD_SIZE = 1f;
     }
 }

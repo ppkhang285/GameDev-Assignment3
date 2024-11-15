@@ -9,7 +9,7 @@ public enum MoveType
     Spawn, // Source is the player, index of the character, target is the spawning location
     Idle // Source = target = (-1, -1)
 }
-
+ 
 public class Move
 {
     // Start is called before the first frame update

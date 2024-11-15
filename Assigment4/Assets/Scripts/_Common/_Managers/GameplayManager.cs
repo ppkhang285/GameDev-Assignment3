@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class GameplayManager : MonoBehaviour
+
 {
+    public BattleHandler battleHandler;
     public static GameplayManager Instance { get; private set; }
 
     public int DeckSize { get; private set; }
@@ -14,8 +16,9 @@ public class GameplayManager : MonoBehaviour
     private GameState gameState;
     private int maxAP;
     private bool[] defeated;
+    public const int MyPlayer = 0;
 
-
+    
     private void Awake()
     {
         if (Instance == null)
@@ -30,6 +33,13 @@ public class GameplayManager : MonoBehaviour
         //players = FindObjectsOfType<Player>();
     }
 
+    private void Start()
+    {
+        // Init here
+        NumPlayer = 2;
+
+        battleHandler.StartGameLoop();
+    }
     public int GetNextPlayer(int currentPlayer)
     {
         return (currentPlayer + 1) % NumPlayer; // TODO: Change logic later when a player is defeated;
@@ -109,4 +119,6 @@ public class GameplayManager : MonoBehaviour
         }
     }
 
+
+    
 }
