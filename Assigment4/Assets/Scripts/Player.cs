@@ -15,33 +15,37 @@ public class Player : MonoBehaviour
     // TODO: Adding constructor/ awake  
 
 
-    public void NewTurn()
-    { // Invoke when new turn start
-        Energy += GameConstants.EnergyPerTurn;
-        if (Energy > GameConstants.MaxEnergy){
-            Energy = GameConstants.MaxEnergy;
+    public void CharMove(Vector2Int location, int index)
+    {
+        Character character = Characters[index];
+        character.Location = location;
+        character.AP -= 1;
+    }
+
+    public void CharAttack(int index)
+    {
+        Character character = Characters[index];
+        character.AP -= 1;
+    }
+
+    public void CharTakeDmg(int dmg, int index)
+    {
+        Character character = Characters[index];
+        character.CurrentHP -= dmg;
+        if (character.CurrentHP <= 0)
+        {
+            character.Dead = true;
         }
-        //AP = GameConstants.MaxAP;
-
     }
 
-    public void TakeDamage(int damage)
+    public void SpawnChar(Vector2Int location, int index)
     {
-        LordHP -= damage;
-    }
-
-    public bool Summon(int cost)
-    {
-        if (cost > Energy) return false;
-        Energy -= cost;
-        return true; 
-    }
-
-    public bool Act()
-    {
-        if (AP <= 0) return false;
-        --AP;
-        return true;
+        Character character = Characters[index];
+        Energy -= character.characterStats.cost;
+        character.Spawned = true;
+        character.CurrentHP = character.characterStats.hp;
+        character.AP = 1;
+        character.Location = location;
     }
 
     public bool IsDead()

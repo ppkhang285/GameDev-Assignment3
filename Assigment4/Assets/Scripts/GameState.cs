@@ -145,6 +145,9 @@ public class GameState
     public void ApplyCharMove(Move move)
     {
         Player player = Players[Cells[move.Source.x][move.Source.y].Item1];
+        int chessIndex = Cells[move.Source.x][move.Source.y].Item2;
+        player.CharMove(new Vector2Int(move.Target.x, move.Target.y), chessIndex);
+
         Cells[move.Target.x][move.Target.y] = Cells[move.Source.x][move.Source.y]; ;
         Cells[move.Source.x][move.Source.y] = (-1, -1, 0); ; // Source becomes empty
 
@@ -169,8 +172,7 @@ public class GameState
         Player player = Players[move.Source.x];
         int chessIndex = move.Source.y;
         Cells[move.Target.x][move.Target.y] = (move.Source.x, chessIndex, player.Characters[chessIndex].characterStats.hp);
-        player.Energy -= player.Characters[chessIndex].characterStats.cost;
-        player.Characters[chessIndex].Spawned = true;
+        player.SpawnChar(new Vector2Int(move.Target.x, move.Target.y), chessIndex);
     }
 
     public void ApplyCharAttack(Move move)
@@ -179,6 +181,7 @@ public class GameState
         Player attackPlayer = Players[sourceCell.Item1];
         int attackerIndex = sourceCell.Item2;
         Character attacker = attackPlayer.Characters[attackerIndex];
+        attackPlayer.CharAttack(attackerIndex);
 
         (int, int, int) targetCell = Cells[move.Target.x][move.Target.y];
         Player targetPlayer = Players[targetCell.Item1];
@@ -187,10 +190,9 @@ public class GameState
         {
             int targetIndex = targetCell.Item2;
             Character target = targetPlayer.Characters[targetIndex];
-            target.CurrentHP -= attacker.characterStats.damage;
+            targetPlayer.CharTakeDmg(attacker.characterStats.damage, targetIndex);
             if (target.CurrentHP <= 0)
             {
-                target.Dead = true;
                 Cells[move.Target.x][move.Target.y] = (-1, -1, 0); // Target is dead, cell becomes empty
             } else
             {
@@ -200,10 +202,9 @@ public class GameState
         else         // If target is Lord
         {
             targetPlayer.LordHP -= attacker.characterStats.damage;
-            attacker.CurrentHP -= GameConstants.LordDmg;
+            attackPlayer.CharTakeDmg(GameConstants.LordDmg, attackerIndex);
             if (attacker.CurrentHP <= 0)
             {
-                attacker.Dead = true;
                 Cells[move.Source.x][move.Source.y] = (-1, -1, 0); // Attacker is dead, cell becomes empty
             } else
             {
