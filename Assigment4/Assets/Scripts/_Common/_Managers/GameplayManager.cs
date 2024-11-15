@@ -4,18 +4,30 @@ using UnityEngine;
 
 public class GameplayManager : MonoBehaviour
 {
+    public static GameplayManager Instance { get; private set; }
 
     public int DeckSize { get; private set; }
     public int BoardSize { get; private set; }
     public int NumPlayer { get; private set; }
+    //private Player[] players;
     //private Character [][] pieces;
     private GameState gameState;
     private int maxAP;
     private bool[] defeated;
 
-    public GameplayManager(int deckSize, int numPlayer, int boardSize)
+
+    private void Awake()
     {
-        // TODO: implement constructor
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject); // Prevent duplicate instances
+        }
+
+        //players = FindObjectsOfType<Player>();
     }
 
     public int GetNextPlayer(int currentPlayer)

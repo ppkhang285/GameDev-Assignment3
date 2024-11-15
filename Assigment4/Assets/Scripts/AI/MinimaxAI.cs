@@ -8,7 +8,7 @@ public class MinimaxAI : BaseAI
     private int maxDepth;
     private string method;
 
-    public MinimaxAI(GameplayManager gameplayManager, int depth, MLModel model = null, string method = "minimax" ) : base(gameplayManager, model)
+    public MinimaxAI(int depth, MLModel model = null, string method = "minimax" ) : base(model)
     {
         maxDepth = depth;
         this.method = method;

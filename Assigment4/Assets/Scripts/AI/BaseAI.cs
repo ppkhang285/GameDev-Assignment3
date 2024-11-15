@@ -9,9 +9,9 @@ public abstract class BaseAI
     // Optional Machine Learning model for evaluation
     protected MLModel model;
 
-    public BaseAI(GameplayManager gameplayManager, MLModel model = null)
+    public BaseAI(MLModel model = null)
     {
-        this.gameplayManager = gameplayManager;
+        this.gameplayManager = GameplayManager.Instance;
         this.model = model;
     }
 

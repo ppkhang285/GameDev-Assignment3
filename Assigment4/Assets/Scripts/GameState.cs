@@ -9,9 +9,9 @@ public class GameState
 {
     public int Turn { get; set; } // Current turn in the game
     public (int, int, int)[][] Cells { get; private set; } // Item1 = -1 means empty cell, Item2 = -1 means Lord, first item indicates the player that owns the chess, second item is the type of the chess, third item is its current hp
-    public Player[] Players { get; private set; } // list of players 
+    public PlayerData[] Players { get; private set; } // list of players 
 
-    public GameState(int turn, (int, int, int) [][] cells, Player[] players)
+    public GameState(int turn, (int, int, int) [][] cells, PlayerData[] players)
     {
         Turn = turn;
 
@@ -49,7 +49,7 @@ public class GameState
     public List<Move> GetLegalSpawn(int currentPlayer)
     {
         //if (defeated[currentPlayer]) return new List<Move>(); // If player is defeated, cannot do anything
-        Player player = Players[currentPlayer];
+        PlayerData player = Players[currentPlayer];
         List<Move> moves = new List<Move>();
 
         // Iterate through spawning locations
@@ -61,7 +61,7 @@ public class GameState
             }
             for (int i = 0; i < player.Characters.Length; i++)
             {
-                Character chessPiece = player.Characters[i];
+                CharacterData chessPiece = player.Characters[i];
                 if (!chessPiece.Spawned && chessPiece.characterStats.cost <= player.Energy) // Chess is not spawned and enough energy to spawn
                 {
                     moves.Add(new Move(new Vector2Int(currentPlayer, i), spawnLocation, MoveType.Spawn));
@@ -75,7 +75,7 @@ public class GameState
     public List<Move> GetLegalMoves(int currentPlayer)
     {
         //if (defeated[currentPlayer]) return new List<Move>(); // If player is defeated, cannot do anything
-        Player player = Players[currentPlayer];
+        PlayerData player = Players[currentPlayer];
         List<Move> moves = new List<Move>();
 
         // Doing nothing is also an option
@@ -87,7 +87,7 @@ public class GameState
         // Move or attack
         for (int i = 0; i < player.Characters.Length; i++)
         {
-            Character chessPiece = player.Characters[i];
+            CharacterData chessPiece = player.Characters[i];
             if (chessPiece.Spawned && !chessPiece.Dead && chessPiece.AP > 0) // Chess is spawned and not dead and still has AP
             {
                 Vector2Int location = chessPiece.Location;
@@ -144,7 +144,7 @@ public class GameState
 
     public void ApplyCharMove(Move move)
     {
-        Player player = Players[Cells[move.Source.x][move.Source.y].Item1];
+        PlayerData player = Players[Cells[move.Source.x][move.Source.y].Item1];
         int chessIndex = Cells[move.Source.x][move.Source.y].Item2;
         player.CharMove(new Vector2Int(move.Target.x, move.Target.y), chessIndex);
 
@@ -169,7 +169,7 @@ public class GameState
 
     public void ApplySpawn(Move move)
     {
-        Player player = Players[move.Source.x];
+        PlayerData player = Players[move.Source.x];
         int chessIndex = move.Source.y;
         Cells[move.Target.x][move.Target.y] = (move.Source.x, chessIndex, player.Characters[chessIndex].characterStats.hp);
         player.SpawnChar(new Vector2Int(move.Target.x, move.Target.y), chessIndex);
@@ -178,18 +178,18 @@ public class GameState
     public void ApplyCharAttack(Move move)
     {
         (int, int, int) sourceCell = Cells[move.Source.x][move.Source.y];
-        Player attackPlayer = Players[sourceCell.Item1];
+        PlayerData attackPlayer = Players[sourceCell.Item1];
         int attackerIndex = sourceCell.Item2;
-        Character attacker = attackPlayer.Characters[attackerIndex];
+        CharacterData attacker = attackPlayer.Characters[attackerIndex];
         attackPlayer.CharAttack(attackerIndex);
 
         (int, int, int) targetCell = Cells[move.Target.x][move.Target.y];
-        Player targetPlayer = Players[targetCell.Item1];
+        PlayerData targetPlayer = Players[targetCell.Item1];
         // If target is not Lord
         if (targetCell.Item2 != -1)
         {
             int targetIndex = targetCell.Item2;
-            Character target = targetPlayer.Characters[targetIndex];
+            CharacterData target = targetPlayer.Characters[targetIndex];
             targetPlayer.CharTakeDmg(attacker.characterStats.damage, targetIndex);
             if (target.CurrentHP <= 0)
             {
@@ -227,8 +227,7 @@ public class GameState
             }
         }
 
-        // Add each player's lord HP
-        foreach (Player player in Players)
+        foreach (PlayerData player in Players)
         {
             features.AddRange(player.ToFeatures());
         }

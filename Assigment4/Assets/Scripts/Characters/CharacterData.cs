@@ -1,8 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
+using System;
 using UnityEngine;
 
-public class Character : MonoBehaviour
+[Serializable]
+public class CharacterData
 {
     // Start is called before the first frame update
     public CharacterStats characterStats;
@@ -22,5 +24,7 @@ public class Character : MonoBehaviour
     public Vector2Int Location { get; set; }
     public bool Spawned { get; set; }
     public bool Dead { get; set; }
+
+    // TODO: Add constructor 
 
 }

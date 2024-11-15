@@ -3,34 +3,41 @@ using System.Collections.Generic;
 using System;
 using UnityEngine;
 
+public enum PlayerType
+{
+    Human,
+    AI
+}
+
 [Serializable]
-public class Player : MonoBehaviour
+public class PlayerData
 {
     public int PlayerNo { get; set; }
-    public Character[] Characters { get; set; } //All characters
+    public PlayerType Type { get; private set; }
+    public CharacterData[] Characters { get; set; } // All characters
     public int AP {get; set;} 
     public int Energy {get; set;}
     public int LordHP {get; set;}
     public List<Vector2Int> SpawnLocations {get; set;} // Locations for spawning chess of all player 
-    // TODO: Adding constructor/ awake  
+    // TODO: Add constructor
 
 
     public void CharMove(Vector2Int location, int index)
     {
-        Character character = Characters[index];
+        CharacterData character = Characters[index];
         character.Location = location;
         character.AP -= 1;
     }
 
     public void CharAttack(int index)
     {
-        Character character = Characters[index];
+        CharacterData character = Characters[index];
         character.AP -= 1;
     }
 
     public void CharTakeDmg(int dmg, int index)
     {
-        Character character = Characters[index];
+        CharacterData character = Characters[index];
         character.CurrentHP -= dmg;
         if (character.CurrentHP <= 0)
         {
@@ -40,7 +47,7 @@ public class Player : MonoBehaviour
 
     public void SpawnChar(Vector2Int location, int index)
     {
-        Character character = Characters[index];
+        CharacterData character = Characters[index];
         Energy -= character.characterStats.cost;
         character.Spawned = true;
         character.CurrentHP = character.characterStats.hp;
@@ -56,7 +63,7 @@ public class Player : MonoBehaviour
     public bool OutOfChess()
     {
         // Still has chess on board
-        foreach (Character character in Characters)
+        foreach (CharacterData character in Characters)
         {
             if (character.Spawned && !character.Dead) return false;
         }
@@ -98,7 +105,7 @@ public class Player : MonoBehaviour
         features.Add(LordHP);
         features.Add(SpawnLocations.Count);
 
-        foreach (Character character in Characters)
+        foreach (CharacterData character in Characters)
         {
             features.Add(character.characterStats.cost);
             if (!character.Spawned)
