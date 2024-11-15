@@ -23,118 +23,11 @@ public class GameplayManager : MonoBehaviour
         return (currentPlayer + 1) % NumPlayer; // TODO: Change logic later when a player is defeated;
     }
 
-    // Check if player has won
-    public bool HasWon(int player)
-    {
-        if (defeated[player]) return false;
-        bool hasWon = true;
-
-        // Other players are defeated
-        for (int i = 0; i < NumPlayer; i++)
-        {
-            if (i != player && !defeated[i])
-                hasWon = false;
-        }
-
-        return hasWon;
-    }
-
-    // Check if player is defeated
-    public bool IsDefeated(int player)
-    {
-        return defeated[player];
-    }
-
-    // Return possible chess spawn
-    public List<Move> GetLegalSpawn(GameState gameState, int currentPlayer)
-    {
-        if (defeated[currentPlayer]) return new List<Move>(); // If player is defeated, cannot do anything
-        Players player = gameState.GetPlayer(currentPlayer);
-        List<Move> moves = new List<Move>();
-
-        // Iterate through spawning locations
-        foreach (Vector2Int spawnLocation in player.SpawnLocations)
-        {
-            if (gameState.GetCell(spawnLocation.x, spawnLocation.y).Item1 != -1) // Spawning location is not occupied by other chess 
-            {
-                continue;
-            }
-            for (int i = 0; i < DeckSize; i++)
-            {
-                Character chessPiece = player.Characters[i];
-                if (!chessPiece.Spawned && chessPiece.AP <= player.Energy) // Chess is not spawned and enough energy to spawn
-                {
-                    moves.Add(new Move(spawnLocation, spawnLocation, MoveType.Spawn));
-                }
-            }
-        }
-
-        return moves;
-    }
-
-    public List<Move> GetLegalMoves(GameState gameState, int currentPlayer)
-    {
-        if (defeated[currentPlayer]) return new List<Move>(); // If player is defeated, cannot do anything
-        Players player = gameState.GetPlayer(currentPlayer);
-        List<Move> moves = new List<Move>();
-
-        // Doing nothing is also an option
-        moves.Add(new Move(new Vector2Int(-1, -1), new Vector2Int(-1, -1), MoveType.Idle)); 
-
-        // Spawn chess
-        moves.AddRange(GetLegalSpawn(gameState, currentPlayer));
-
-        // Move or attack
-        for (int i = 0; i < DeckSize; i++)
-        {
-            Character chessPiece = player.Characters[i];
-            if (chessPiece.Spawned && !chessPiece.Dead && chessPiece.AP > 0) // Chess is spawned and not dead and still has AP
-            {
-                Vector2Int location = chessPiece.Location;
-                int movementRange = chessPiece.characterStats.movementRange;
-                int attackRange = chessPiece.characterStats.attackRange;
-
-                // Possible cells to move
-                for (int j = -movementRange; j <= movementRange; j++)
-                {
-                    for (int k = -movementRange; k <= movementRange; k++)
-                    {
-                        if (location.x + j < 0 || location.x + j >= BoardSize || location.y + k < 0 || location.y + k >= BoardSize) continue;
-                        if (j != 0 && k != 0) continue;
-                        if (gameState.GetCell(i, j).Item1 == -1) // Cell is empty
-                        {
-                            Vector2Int target = new Vector2Int(j, k);
-                            Move newMove = new Move(location, target, MoveType.CharMove);
-                            moves.Add(newMove);
-                        }
-                    }
-                }
-
-                // Possible cells to attack
-                for (int j = -attackRange; j <= attackRange; j++)
-                {
-                    for (int k = -attackRange; k <= attackRange; k++)
-                    {
-                        if (location.x + j < 0 || location.x + j >= BoardSize || location.y + k < 0 || location.y + k >= BoardSize) continue;
-                        if (j != 0 && k != 0) continue;
-                        if (gameState.GetCell(i, j).Item1 != -1 && gameState.GetCell(i, j).Item1 != currentPlayer) // Cell is not empty and the piece in the cell is of enemy team 
-                        {
-                            Vector2Int target = new Vector2Int(j, k);
-                            Move newMove = new Move(location, target, MoveType.CharAttack);
-                            moves.Add(newMove);
-                        }
-                    }
-                }
-            }
-        }
-        return moves;
-    }
-
     public List<List<Move>> GetMoveSequences(GameState gameState, int currentPlayer)
     {
         List<List<Move>> moveSequences = new List<List<Move>>();
-
-        GenerateMoveSequencesRecursive(gameState, new List<Move>(), currentPlayer, maxAP, moveSequences);
+        GameState newState = DeepCopyUtility.DeepCopy(gameState);
+        GenerateMoveSequencesRecursive(newState, new List<Move>(), currentPlayer, maxAP, moveSequences);
 
         return moveSequences;
     }
@@ -144,7 +37,7 @@ public class GameplayManager : MonoBehaviour
         // If out of action point, can still spawn chess
         if (remainingMoves == 0) 
         {
-            List<Move> legalSpawns = GetLegalSpawn(currentGameState, currentPlayer);
+            List<Move> legalSpawns = currentGameState.GetLegalSpawn(currentPlayer);
 
             // If cannot spawn, then out of move options
             if (legalSpawns.Count == 0)
@@ -156,58 +49,52 @@ public class GameplayManager : MonoBehaviour
             foreach(Move spawn in legalSpawns)
             {
                 currentSequence.Add(spawn);
-                GameState nextGameState = SimulateMove(currentGameState, spawn, currentPlayer);
-                GenerateMoveSequencesRecursive(nextGameState, currentSequence, currentPlayer, remainingMoves, moveSequences); // Spawning does not cost action points
+                GameState newState = DeepCopyUtility.DeepCopy(currentGameState);
+                newState.ApplyMove(spawn);
+                GenerateMoveSequencesRecursive(newState, currentSequence, currentPlayer, remainingMoves, moveSequences); // Spawning does not cost action points
                 currentSequence.RemoveAt(currentSequence.Count - 1);
             }
             
             return;
         }
 
-        List<Move> legalMoves = GetLegalMoves(currentGameState, currentPlayer);
+        List<Move> legalMoves = currentGameState.GetLegalMoves(currentPlayer);
         foreach (Move move in legalMoves)
         {
             // Add the move to the current sequence
             currentSequence.Add(move);
 
             // Apply the move to simulate the next board state
-            GameState nextGameState = SimulateMove(currentGameState, move, currentPlayer);
+            GameState newState = DeepCopyUtility.DeepCopy(currentGameState);
+            newState.ApplyMove(move);
 
             // Recurse to generate further sequences
             if (move.Type == MoveType.Spawn)
-                GenerateMoveSequencesRecursive(nextGameState, currentSequence, currentPlayer, remainingMoves, moveSequences); // Spawning does not cost action points
+                GenerateMoveSequencesRecursive(newState, currentSequence, currentPlayer, remainingMoves, moveSequences); // Spawning does not cost action points
             else
-                GenerateMoveSequencesRecursive(nextGameState, currentSequence, currentPlayer, remainingMoves - 1, moveSequences);
+                GenerateMoveSequencesRecursive(newState, currentSequence, currentPlayer, remainingMoves - 1, moveSequences);
 
             // Backtrack to explore other options
             currentSequence.RemoveAt(currentSequence.Count - 1);
         }
     }
 
-    public GameState SimulateMove(GameState gameState, Move move, int currentPlayer) // Simulate to get the game state after player's move, not actually change the game state
+    public GameState SimulateMoveSequence(GameState gameState, List<Move> moves) // Only simulate the move sequence, does not change the current game state
     {
         GameState newState = DeepCopyUtility.DeepCopy(gameState);
-        if (move.Type == MoveType.Idle) // Doing nothing does not change the game state
-            return newState;
-
-        return null;
-    }
-
-    public GameState SimulateMoveSequence(GameState gameState, List<Move> moves, int currentPlayer)
-    {
-        GameState newState = DeepCopyUtility.DeepCopy(gameState);
-
-        // Apply the moves sequentially
         foreach (Move move in moves)
         {
-            newState = SimulateMove(newState, move, currentPlayer);
+            newState.ApplyMove(move);
         }
         return newState;
     }
 
-    public void ApplyMoveSequence(List<Move> move, int currentPlayer) // Actually change the current game state
+    public void ApplyMoveSequence(List<Move> moves) // Actually change the current game state
     {
-        gameState = SimulateMoveSequence(gameState, move, currentPlayer);
+        foreach (Move move in moves)
+        {
+            gameState.ApplyMove(move);
+        }
     }
 
 }

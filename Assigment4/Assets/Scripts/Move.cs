@@ -4,10 +4,10 @@ using UnityEngine;
 
 public enum MoveType
 {
-    CharAttack,
-    CharMove,
-    Spawn,
-    Idle
+    CharAttack, // Source is the location of the character, target is the location of the target
+    CharMove, // Source is the before location of the character, target is the after location of the character
+    Spawn, // Source is the player, index of the character, target is the spawning location
+    Idle // Source = target = (-1, -1)
 }
 
 public class Move

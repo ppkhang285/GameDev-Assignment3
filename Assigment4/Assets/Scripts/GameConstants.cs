@@ -18,4 +18,6 @@ public static class GameConstants
     public const int TRANSITION_TIME = 4;
     public const int MaxAP = 3;
     public const int MaxCharacter = 5;
+    public const int LordHP = 50;
+    public const int LordDmg = 4;
 }

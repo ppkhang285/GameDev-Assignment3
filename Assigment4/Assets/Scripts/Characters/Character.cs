@@ -6,7 +6,12 @@ public class Character : MonoBehaviour
 {
     // Start is called before the first frame update
     public CharacterStats characterStats;
-    public int CurrentHP { get; set; }
+    private int _hp;
+    public int CurrentHP
+    {
+        get { return _hp; }
+        set { if (value <= 0) _hp = 0; else _hp = 1; }
+    }
 
     private int _ap;
     public int AP {
