@@ -14,13 +14,45 @@ public class PlayerData
 {
     public int PlayerNo { get; set; }
     public PlayerType Type { get; private set; }
-    public CharacterData[] Characters { get; set; } // All characters
+    public CharacterData[] Characters { get; set; }
     public int AP {get; set;} 
     public int Energy {get; set;}
+    public Vector2Int LordLocation { get; private set; }
     public int LordHP {get; set;}
-    public List<Vector2Int> SpawnLocations {get; set;} // Locations for spawning chess of all player 
-    // TODO: Add constructor
+    public List<Vector2Int> SpawnLocations {get; set;} 
 
+    public PlayerData(int playerNo, PlayerType type, CharacterData[] characters, Vector2Int lordLocation)
+    {
+        PlayerNo = playerNo;
+        Type = type;
+        Characters = characters;
+        AP = GameConstants.MaxAP;
+        Energy = GameConstants.StartEnergy;
+        LordHP = GameConstants.LordHP;
+        LordLocation = lordLocation;
+        SpawnLocations = new List<Vector2Int>();
+        if (LordLocation.x == 0)
+        {
+            SpawnLocations.Add(new Vector2Int(LordLocation.x + 1, LordLocation.y)); // To the right of the lord 
+        } else if (LordLocation.x == GameConstants.BoardSize - 1)
+        {
+            SpawnLocations.Add(new Vector2Int(LordLocation.x - 1, LordLocation.y)); // To the left of the lord 
+        } else
+        {
+            SpawnLocations.Add(new Vector2Int(LordLocation.x, LordLocation.y));
+        }
+
+        if (LordLocation.y == 0)
+        {
+            SpawnLocations.Add(new Vector2Int(LordLocation.x, LordLocation.y + 1)); // Below the lord 
+        } else if (LordLocation.y == GameConstants.BoardSize - 1)
+        {
+            SpawnLocations.Add(new Vector2Int(LordLocation.x, LordLocation.y - 1)); // Above the lord 
+        } else
+        {
+            SpawnLocations.Add(new Vector2Int(LordLocation.x, LordLocation.y));
+        }
+    }
 
     public void CharMove(Vector2Int location, int index)
     {
@@ -41,7 +73,7 @@ public class PlayerData
         character.CurrentHP -= dmg;
         if (character.CurrentHP <= 0)
         {
-            character.Dead = true;
+            character.Die();
         }
     }
 
@@ -49,10 +81,7 @@ public class PlayerData
     {
         CharacterData character = Characters[index];
         Energy -= character.characterStats.cost;
-        character.Spawned = true;
-        character.CurrentHP = character.characterStats.hp;
-        character.AP = 1;
-        character.Location = location;
+        character.Spawn(location);
     }
 
     public bool IsDead()
@@ -96,6 +125,19 @@ public class PlayerData
         return false;
     }
 
+    public void ClearBoard()
+    {
+        foreach (CharacterData character in Characters)
+        {
+            character.Die();
+        }
+        AP = 0;
+        Energy = 0;
+        LordLocation = new Vector2Int(-1, -1);
+        LordHP = 0;
+        SpawnLocations.Clear();
+    }
+
 
     public List<float> ToFeatures()
     {
@@ -107,20 +149,7 @@ public class PlayerData
 
         foreach (CharacterData character in Characters)
         {
-            features.Add(character.characterStats.cost);
-            if (!character.Spawned)
-            {
-                features.Add(character.CurrentHP);
-                features.Add(1);
-            }
-            else
-            {
-                features.Add(character.characterStats.hp);
-                if (!character.Dead)
-                    features.Add(2);
-                else
-                    features.Add(0);
-            }
+            features.AddRange(character.ToFeatures());
         }
 
         return features;
