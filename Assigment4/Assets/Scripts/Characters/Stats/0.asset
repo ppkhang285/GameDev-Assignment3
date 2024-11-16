@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b508262327b17774caaa499d1fcc6a86, type: 3}
-  m_Name: 14
+  m_Name: 0
   m_EditorClassIdentifier: 
-  cost: 6
-  hp: 30
-  damage: 2
+  cost: 1
+  hp: 10
+  damage: 3
   attackRange: 1
   movementRange: 2
   sprite: {fileID: 0}

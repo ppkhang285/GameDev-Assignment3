@@ -13,7 +13,7 @@ public static class GameConstants
     // Game config
     public const int MaxPlayer = 4;
     public const int BoardSize = 10;
-
+    public const int DeckSize = 10;
 
     public const int TRANSITION_TIME = 4;
     public const int MaxAP = 3;

@@ -7,13 +7,13 @@ using UnityEngine;
 // Attach to the Chess pieces game objects on the board
 public class Character : MonoBehaviour
 {
-    [SerializeField] private CharacterData data;
+    public CharacterData Data { get; set; }
 
     public void Initialize(string name)
     {
         CharacterStats characterStats = AssetDatabase.LoadAssetAtPath<CharacterStats>("Assets/Scripts/Characters/Stats/" + name + ".asset");
-        data = new CharacterData(characterStats);
-        Debug.Log(data.characterStats.hp);
+        Data = new CharacterData(characterStats);
+        Debug.Log(Data.characterStats.hp);
     }
     // Start is called before the first frame updates
     void Start()

@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: 6
   m_EditorClassIdentifier: 
   cost: 3
-  hp: 6
-  damage: 3
-  attackRange: 3
+  hp: 14
+  damage: 4
+  attackRange: 1
   movementRange: 2
   sprite: {fileID: 0}

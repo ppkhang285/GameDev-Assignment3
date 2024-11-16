@@ -7,7 +7,6 @@ using UnityEditor;
 [Serializable]
 public class CharacterData
 {
-    // Start is called before the first frame update
     public CharacterStats characterStats;
     private int _hp;
     public int CurrentHP
@@ -26,7 +25,6 @@ public class CharacterData
     public bool Spawned { get; set; }
     public bool Dead { get; set; }
 
-    // TODO: Add constructor 
     public CharacterData(CharacterStats stats) // Default constructor for unspawned chess
     {
         characterStats = stats;
@@ -45,5 +43,45 @@ public class CharacterData
         Location = loc;
         Spawned = spawned;
         Dead = dead;
+    }
+
+    public void Spawn(Vector2Int location)
+    {
+        Spawned = true;
+        CurrentHP = characterStats.hp;
+        AP = 1;
+        Location = location;
+    }
+
+    public void Die()
+    {
+        CurrentHP = 0;
+        AP = 0;
+        Location = new Vector2Int(-1, -1);
+        Spawned = true;
+        Dead = true;
+    }
+
+    public List<float> ToFeatures()
+    {
+        List<float> features = new List<float>();
+        features.Add(characterStats.cost);
+        features.Add(characterStats.hp);
+        features.Add(characterStats.damage);
+        features.Add(characterStats.attackRange);
+        features.Add(characterStats.movementRange);
+        features.Add(CurrentHP);
+        features.Add(AP);
+        features.Add(Location.x);
+        features.Add(Location.y);
+        if (Spawned)
+            features.Add(1);
+        else
+            features.Add(0);
+        if (Dead)
+            features.Add(1);
+        else
+            features.Add(0);
+        return features;
     }
 }

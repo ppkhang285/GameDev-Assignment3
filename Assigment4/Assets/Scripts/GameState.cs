@@ -29,9 +29,23 @@ public class GameState
     public bool HasLost(int currentPlayer)
     {
         if (Turn > GameConstants.TurnReceiveEnergy) // No more energy is generated
-            return Players[currentPlayer].IsDead();
+            if (Players[currentPlayer].IsDead())
+            {
+                ClearBoard(currentPlayer);
+                return true;
+            }
+            else
+                return false;
         else
-            return Players[currentPlayer].LordHP <= 0;
+        {
+            if (Players[currentPlayer].LordHP <= 0)
+            {
+                ClearBoard(currentPlayer);
+                return true;
+            }
+            else
+                return false;
+        }
     }
 
     public bool HasWon(int currentPlayer)
@@ -46,6 +60,21 @@ public class GameState
         return true;
     }
 
+    public void ClearBoard(int player) // Clear the cells that has player's lord or character 
+    {
+        for (int i = 0; i < Cells.Length; i++)
+        {
+            for (int j = 0; j < Cells[i].Length; j++)
+            {
+                if (Cells[i][j].Item1 == player)
+                {
+                    Cells[i][j] = (-1, -1, 0);
+                }
+            }
+        }
+        Players[player].ClearBoard();
+    }
+
     public List<Move> GetLegalSpawn(int currentPlayer)
     {
         //if (defeated[currentPlayer]) return new List<Move>(); // If player is defeated, cannot do anything
@@ -55,10 +84,8 @@ public class GameState
         // Iterate through spawning locations
         foreach (Vector2Int spawnLocation in player.SpawnLocations)
         {
-            if (Cells[spawnLocation.x][spawnLocation.y].Item1 != -1) // Spawning location is occupied by other chess 
-            {
-                continue;
-            }
+            // Spawning location is occupied by other chess 
+            if (Cells[spawnLocation.x][spawnLocation.y].Item1 != -1) continue;
             for (int i = 0; i < player.Characters.Length; i++)
             {
                 CharacterData chessPiece = player.Characters[i];
@@ -95,12 +122,12 @@ public class GameState
                 int attackRange = chessPiece.characterStats.attackRange;
 
                 // Possible cells to move
-                for (int j = -movementRange; j <= movementRange; j++)
+                for (int j = location.x - movementRange; j <= location.x + movementRange; j++)
                 {
-                    for (int k = -movementRange; k <= movementRange; k++)
+                    for (int k = location.y - movementRange; k <= location.y + movementRange; k++)
                     {
-                        if (location.x + j < 0 || location.x + j >= Cells.Length || location.y + k < 0 || location.y + k >= Cells.Length) continue;
-                        if (j != 0 && k != 0) continue;
+                        if (j < 0 || j >= Cells.Length || k < 0 || k >= Cells.Length) continue; // Out of the board
+                        if (j == location.x && k == location.y) continue; // The chess's current cell
                         if (Cells[j][k].Item1 == -1) // Cell is empty
                         {
                             Vector2Int target = new Vector2Int(j, k);
@@ -111,12 +138,12 @@ public class GameState
                 }
 
                 // Possible cells to attack
-                for (int j = -attackRange; j <= attackRange; j++)
+                for (int j = location.x - attackRange; j <= location.x + attackRange; j++)
                 {
-                    for (int k = -attackRange; k <= attackRange; k++)
+                    for (int k = location.y - attackRange; k <= location.y + attackRange; k++)
                     {
-                        if (location.x + j < 0 || location.x + j >= Cells.Length || location.y + k < 0 || location.y + k >= Cells.Length) continue;
-                        if (j != 0 && k != 0) continue;
+                        if (j < 0 || j >= Cells.Length || k < 0 || k >= Cells.Length) continue; // Out of the board
+                        if (j == location.x && k == location.y) continue; // The chess's current cell
                         if (Cells[j][k].Item1 != -1 && Cells[j][k].Item1 != currentPlayer) // Cell is not empty and the piece in the cell is of enemy team 
                         {
                             Vector2Int target = new Vector2Int(j, k);
@@ -144,8 +171,9 @@ public class GameState
 
     public void ApplyCharMove(Move move)
     {
-        PlayerData player = Players[Cells[move.Source.x][move.Source.y].Item1];
-        int chessIndex = Cells[move.Source.x][move.Source.y].Item2;
+        (int, int, int) sourceCell = Cells[move.Source.x][move.Source.y];
+        PlayerData player = Players[sourceCell.Item1]; 
+        int chessIndex = sourceCell.Item2;
         player.CharMove(new Vector2Int(move.Target.x, move.Target.y), chessIndex);
 
         Cells[move.Target.x][move.Target.y] = Cells[move.Source.x][move.Source.y]; ;

@@ -8,7 +8,7 @@ public class RandomAI : BaseAI
 
     public override List<Move> GetMove(GameState gameState, int currentPlayer)
     {
-        List<List<Move>> moveSequences = gameplayManager.GetMoveSequences(gameState, currentPlayer);
+        List<List<Move>> moveSequences = GetMoveSequences(gameState, currentPlayer);
         int randomIndex = Random.Range(0, moveSequences.Count);
         return moveSequences[randomIndex];
     }

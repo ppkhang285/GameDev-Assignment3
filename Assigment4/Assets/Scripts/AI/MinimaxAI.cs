@@ -39,13 +39,14 @@ public class MinimaxAI : BaseAI
         float[] outcome = new float[gameplayManager.NumPlayer];
         List<Move> bestSequence = null;
 
-        List<List<Move>> moveSequences = gameplayManager.GetMoveSequences(gameState, currentPlayer);
+        List<List<Move>> moveSequences = GetMoveSequences(gameState, currentPlayer);
         foreach (List<Move> sequence in moveSequences)
         {
-            GameState newState = gameplayManager.SimulateMoveSequence(gameState, sequence);
+            GameState newState = SimulateMoveSequence(gameState, sequence);
             float[] value = Minimax(newState, depth - 1, gameplayManager.GetNextPlayer(currentPlayer)).Item1;
 
-            TrainModel(newState, value);
+            if (model)
+                TrainModel(newState, value);
 
             if (value[currentPlayer] > bestValue)
             {
@@ -68,9 +69,10 @@ public class MinimaxAI : BaseAI
         float[] bestOutcome = new float[gameplayManager.NumPlayer];
         List<Move> bestSequence = null;
 
-        foreach (List<Move> sequence in gameplayManager.GetMoveSequences(gameState, currentPlayer))
+        List<List<Move>> moveSequences = GetMoveSequences(gameState, currentPlayer);
+        foreach (List<Move> sequence in moveSequences)
         {
-            GameState newState = gameplayManager.SimulateMoveSequence(gameState, sequence);
+            GameState newState = SimulateMoveSequence(gameState, sequence);
             float[] value = AlphaBeta(
                 newState,
                 depth - 1,
@@ -79,7 +81,8 @@ public class MinimaxAI : BaseAI
                 (float[])beta.Clone()
             ).Item1;
 
-            TrainModel(newState, value);
+            if (model)
+                TrainModel(newState, value);
 
             if (bestOutcome == null || value[currentPlayer] > alpha[currentPlayer])
             {

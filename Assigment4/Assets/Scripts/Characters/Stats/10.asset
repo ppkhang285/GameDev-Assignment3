@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b508262327b17774caaa499d1fcc6a86, type: 3}
   m_Name: 10
   m_EditorClassIdentifier: 
-  cost: 4
-  hp: 18
+  cost: 5
+  hp: 20
   damage: 5
   attackRange: 2
-  movementRange: 1
+  movementRange: 2
   sprite: {fileID: 0}
