@@ -57,24 +57,19 @@ public class PlayerData
     public void CharMove(Vector2Int location, int index)
     {
         CharacterData character = Characters[index];
-        character.Location = location;
-        character.AP -= 1;
+        character.CharMove(location);
     }
 
     public void CharAttack(int index)
     {
         CharacterData character = Characters[index];
-        character.AP -= 1;
+        character.CharAttack();
     }
 
     public void CharTakeDmg(int dmg, int index)
     {
         CharacterData character = Characters[index];
-        character.CurrentHP -= dmg;
-        if (character.CurrentHP <= 0)
-        {
-            character.Die();
-        }
+        character.TakeDmg(dmg);
     }
 
     public void SpawnChar(Vector2Int location, int index)

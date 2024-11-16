@@ -8,6 +8,7 @@ using UnityEditor;
 public class CharacterData
 {
     public CharacterStats characterStats;
+    public int PlayerTeam { get; private set; }
     private int _hp;
     public int CurrentHP
     {
@@ -25,8 +26,9 @@ public class CharacterData
     public bool Spawned { get; set; }
     public bool Dead { get; set; }
 
-    public CharacterData(CharacterStats stats) // Default constructor for unspawned chess
+    public CharacterData(CharacterStats stats, int team) // Default constructor for unspawned chess
     {
+        PlayerTeam = team;
         characterStats = stats;
         CurrentHP = characterStats.hp;
         AP = 0;
@@ -35,8 +37,9 @@ public class CharacterData
         Dead = false;
     }
 
-    public CharacterData(CharacterStats stats, int hp, int ap, Vector2Int loc, bool spawned, bool dead)
+    public CharacterData(CharacterStats stats, int team, int hp, int ap, Vector2Int loc, bool spawned, bool dead)
     {
+        PlayerTeam = team;
         characterStats = stats;
         CurrentHP = hp;
         AP = ap;
@@ -60,6 +63,27 @@ public class CharacterData
         Location = new Vector2Int(-1, -1);
         Spawned = true;
         Dead = true;
+    }
+
+
+    public void CharMove(Vector2Int location)
+    {
+        Location = location;
+        AP -= 1;
+    }
+
+    public void CharAttack()
+    {
+        AP -= 1;
+    }
+
+    public void TakeDmg(int dmg)
+    {
+        CurrentHP -= dmg;
+        if (CurrentHP < 0)
+        {
+            Die();
+        }
     }
 
     public List<float> ToFeatures()

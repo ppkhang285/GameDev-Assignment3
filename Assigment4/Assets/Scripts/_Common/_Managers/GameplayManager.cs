@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class GameplayManager : MonoBehaviour
+
 {
+    public BattleHandler battleHandler;
     public static GameplayManager Instance { get; private set; }
 
     public int DeckSize { get; private set; }
@@ -12,8 +14,10 @@ public class GameplayManager : MonoBehaviour
     private Player[] players;
     //private Character [][] pieces;
     private GameState gameState;
+    private bool[] defeated;
+    public const int MyPlayer = 0;
 
-
+    
     private void Awake()
     {
         if (Instance == null)
@@ -22,7 +26,7 @@ public class GameplayManager : MonoBehaviour
         }
         else
         {
-            Destroy(gameObject); // Prevent duplicate instances
+            Destroy(gameObject); 
         }
 
         DeckSize = GameConstants.DeckSize;
@@ -58,13 +62,19 @@ public class GameplayManager : MonoBehaviour
         }
     }
 
-    public int GetNextPlayer(int currentPlayer)
+    private void Start()
     {
-        return (currentPlayer + 1) % NumPlayer; // TODO: Change logic later when a player is defeated;
+        // Init here
+        NumPlayer = 2;
+
+        battleHandler.StartGameLoop();
     }
 
+    public int GetNextPlayer(int currentPlayer)
+    {
+        return battleHandler.GetNextPlayer(currentPlayer);
+    }
     
-
     public void ApplyMoveSequence(List<Move> moves) // Actually change the current game state
     {
         foreach (Move move in moves)
@@ -73,4 +83,6 @@ public class GameplayManager : MonoBehaviour
         }
     }
 
+
+    
 }
