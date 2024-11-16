@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class BattleHandler : MonoBehaviour
@@ -48,11 +49,27 @@ public class BattleHandler : MonoBehaviour
             Debug.Log("Current Player: " + currentPlayer);
 
             // Handle the current player's turn
-            yield return StartCoroutine(HandlePlayerTurn());
+            PlayerType playerType = GameplayManager.Instance.players[System.Array.IndexOf(playerPool, currentPlayer)].GetComponent<Player>().Data.Type;
+            if (playerType == PlayerType.Human)
+                yield return StartCoroutine(HandlePlayerTurn());
+            else 
+                yield return StartCoroutine(HandleAITurn());
 
             // After the player's turn, move to the next player
             ChangeTurn();
         }
+    }
+
+    private IEnumerator HandleAITurn()
+    {
+        Debug.Log(currentPlayer + " is taking their turn.");
+        List<Move> sequence = GameplayManager.Instance.AI.GetMove(GameplayManager.Instance.gameState, System.Array.IndexOf(playerPool, currentPlayer));
+        foreach (Move move in sequence)
+        {
+            Debug.Log(move.ToString());
+        }
+        GameplayManager.Instance.ApplyMoveSequence(sequence);
+        yield return null;
     }
 
     private IEnumerator HandlePlayerTurn()
@@ -71,9 +88,15 @@ public class BattleHandler : MonoBehaviour
         return (currentIdx + 1) % playerPool.Length;
     }
 
+    public int GetCurrentPlayer()
+    {
+        return System.Array.IndexOf(playerPool, currentPlayer);
+    }
+
     private void ChangeTurn()
     {
-        int currentIdx = System.Array.IndexOf(playerPool, currentPlayer);
+        int currentIdx = GetCurrentPlayer();
         currentPlayer = playerPool[GetNextPlayer(currentIdx)];
+        GameplayManager.Instance.ChangeTurn();
     }
 }

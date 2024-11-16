@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class RandomAI : BaseAI
 {
-    public RandomAI(MLModel model = null) : base(model) { }
+    public RandomAI(int moveLimit = 10, float dropChance = 0.3f, MLModel model = null) : base(moveLimit, dropChance, model) { }
 
     public override List<Move> GetMove(GameState gameState, int currentPlayer)
     {

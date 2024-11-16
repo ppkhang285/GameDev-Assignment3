@@ -2,37 +2,68 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using System.Diagnostics;
 
 public class MinimaxAI : BaseAI
 {
     private int maxDepth;
     private string method;
+    private float timeLimit;
+    private Stopwatch stopwatch;
+    private List<Move> currentBestSequence; // Track the best sequence found so far
 
-    public MinimaxAI(int depth, MLModel model = null, string method = "minimax" ) : base(model)
+    public MinimaxAI(int depth, int moveLimit = 10, float dropChance = 0.3f, float timeLimit = 30.0f, MLModel model = null, string method = "minimax") : base(moveLimit, dropChance, model)
     {
         maxDepth = depth;
         this.method = method;
+        this.timeLimit = timeLimit;
+        stopwatch = new Stopwatch();
     }
 
     public override List<Move> GetMove(GameState gameState, int currentPlayer)
     {
+        stopwatch.Restart();
+        currentBestSequence = null;
+
         if (method == "minimax")
         {
-            return Minimax(gameState, maxDepth, currentPlayer).Item2;
-        } else
+            var result = Minimax(gameState, maxDepth, currentPlayer);
+            stopwatch.Stop();
+            return result.Item2 ?? GetFallbackMove(gameState, currentPlayer);
+        }
+        else
         {
             float[] alpha = new float[gameplayManager.NumPlayer].Select(_ => float.NegativeInfinity).ToArray();
             float[] beta = new float[gameplayManager.NumPlayer].Select(_ => float.PositiveInfinity).ToArray();
-            return AlphaBeta(gameState, maxDepth, currentPlayer, alpha, beta).Item2;
+            var result = AlphaBeta(gameState, maxDepth, currentPlayer, alpha, beta);
+            stopwatch.Stop();
+            return result.Item2 ?? GetFallbackMove(gameState, currentPlayer);
         }
+    }
+
+    private List<Move> GetFallbackMove(GameState gameState, int currentPlayer)
+    {
+        // Return the best sequence found so far if available
+        if (currentBestSequence != null)
+        {
+            return currentBestSequence;
+        }
+
+        // If no sequence was found at all, return the first valid move
+        var moves = GetMoveSequences(gameState, currentPlayer);
+        return moves.Count > 0 ? moves[0] : new List<Move>();
+    }
+
+    private bool IsTimeUp()
+    {
+        return stopwatch.ElapsedMilliseconds > timeLimit * 1000;
     }
 
     private (float[] bestOutcome, List<Move> bestSequence) Minimax(GameState gameState, int depth, int currentPlayer)
     {
-        // If maximum depth is reached or the game is over for the current player
-        if (depth == 0 || gameState.HasWon(currentPlayer) || gameState.HasLost(currentPlayer))
+        if (depth == 0 || IsTimeUp() || gameState.HasWon(currentPlayer) || gameState.HasLost(currentPlayer))
         {
-            return (Evaluate(gameState), null); 
+            return (Evaluate(gameState), null);
         }
 
         float bestValue = float.NegativeInfinity;
@@ -42,6 +73,9 @@ public class MinimaxAI : BaseAI
         List<List<Move>> moveSequences = GetMoveSequences(gameState, currentPlayer);
         foreach (List<Move> sequence in moveSequences)
         {
+            if (IsTimeUp())
+                break;
+
             GameState newState = SimulateMoveSequence(gameState, sequence);
             float[] value = Minimax(newState, depth - 1, gameplayManager.GetNextPlayer(currentPlayer)).Item1;
 
@@ -53,6 +87,12 @@ public class MinimaxAI : BaseAI
                 bestValue = value[currentPlayer];
                 outcome = value;
                 bestSequence = sequence;
+
+                // Update the current best sequence at the root level
+                if (depth == maxDepth)
+                {
+                    currentBestSequence = sequence;
+                }
             }
         }
 
@@ -61,7 +101,8 @@ public class MinimaxAI : BaseAI
 
     private (float[] bestOutcome, List<Move> bestSequence) AlphaBeta(GameState gameState, int depth, int currentPlayer, float[] alpha, float[] beta)
     {
-        if (depth == 0 || gameState.HasWon(currentPlayer) || gameState.HasLost(currentPlayer))
+
+        if (depth == 0 || IsTimeUp() || gameState.HasWon(currentPlayer) || gameState.HasLost(currentPlayer))
         {
             return (Evaluate(gameState), null);
         }
@@ -72,6 +113,9 @@ public class MinimaxAI : BaseAI
         List<List<Move>> moveSequences = GetMoveSequences(gameState, currentPlayer);
         foreach (List<Move> sequence in moveSequences)
         {
+            if (IsTimeUp())
+                break;
+
             GameState newState = SimulateMoveSequence(gameState, sequence);
             float[] value = AlphaBeta(
                 newState,
@@ -89,9 +133,14 @@ public class MinimaxAI : BaseAI
                 bestOutcome = value;
                 bestSequence = sequence;
                 alpha[currentPlayer] = value[currentPlayer];
+
+                // Update the current best sequence at the root level
+                if (depth == maxDepth)
+                {
+                    currentBestSequence = sequence;
+                }
             }
 
-            // Prune the branch if another player can ensure a worse outcome for this player
             bool shouldPrune = false;
             for (int i = 0; i < alpha.Length; i++)
             {
@@ -107,7 +156,6 @@ public class MinimaxAI : BaseAI
                 break;
             }
 
-            // Update beta for other players
             for (int i = 0; i < beta.Length; i++)
             {
                 if (i != currentPlayer)

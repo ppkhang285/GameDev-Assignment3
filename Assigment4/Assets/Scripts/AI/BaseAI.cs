@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public abstract class BaseAI
 {
@@ -8,11 +9,15 @@ public abstract class BaseAI
 
     // Optional Machine Learning model for evaluation
     protected MLModel model;
+    protected int moveLimit;
+    protected float dropChance;
 
-    public BaseAI(MLModel model = null)
+    public BaseAI(int moveLimit = 10, float dropChance = 0.3f, MLModel model = null)
     {
         this.gameplayManager = GameplayManager.Instance;
         this.model = model;
+        this.moveLimit = moveLimit;
+        this.dropChance = dropChance;
     }
 
     public abstract List<Move> GetMove(GameState gameState, int currentPlayer);
@@ -37,7 +42,7 @@ public abstract class BaseAI
                 for (int j = 0; j < gameplayManager.BoardSize; j++)
                 {
                     (int, int, int) cell = gameState.Cells[i][j];
-                    if (cell.Item1 == -1) continue;
+                    if (cell.Item1 == -1 || cell.Item2 == -1) continue;
                     CharacterData chess = gameState.Players[cell.Item1].Characters[cell.Item2];
                     evaluations[cell.Item1] += chess.characterStats.cost * chess.CurrentHP / chess.characterStats.hp;
                 }
@@ -48,7 +53,7 @@ public abstract class BaseAI
 
     protected GameState SimulateMoveSequence(GameState gameState, List<Move> moves) // Only simulate the move sequence, does not change the current game state
     {
-        GameState newState = DeepCopyUtility.DeepCopy(gameState);
+        GameState newState = DeepCopyUtility.Copy(gameState);
         foreach (Move move in moves)
         {
             newState.ApplyMove(move);
@@ -59,8 +64,9 @@ public abstract class BaseAI
     public List<List<Move>> GetMoveSequences(GameState gameState, int currentPlayer)
     {
         List<List<Move>> moveSequences = new List<List<Move>>();
-        GameState newState = DeepCopyUtility.DeepCopy(gameState);
-        GenerateMoveSequencesRecursive(newState, new List<Move>(), currentPlayer, GameConstants.MaxAP, moveSequences);
+        GameState newState = DeepCopyUtility.Copy(gameState);
+        List<Move> currentSequence = new List<Move>();
+        GenerateMoveSequencesRecursive(newState, currentSequence, currentPlayer, GameConstants.MaxAP, moveSequences);
 
         return moveSequences;
     }
@@ -70,19 +76,22 @@ public abstract class BaseAI
         // If out of action point, can still spawn chess
         if (remainingMoves == 0)
         {
-            List<Move> legalSpawns = currentGameState.GetLegalSpawn(currentPlayer);
+            if (moveSequences.Count >= moveLimit) return;
+            List<Move> legalSpawns = currentGameState.GetLegalSpawn(currentPlayer, dropChance);
 
             // If cannot spawn, then out of move options
             if (legalSpawns.Count == 0)
             {
-                moveSequences.Add(currentSequence);
+                List<Move> copySequence = DeepCopyUtility.Copy(currentSequence);
+                moveSequences.Add(copySequence);
                 return;
             }
 
             foreach (Move spawn in legalSpawns)
             {
+                if (moveSequences.Count >= moveLimit) return;
                 currentSequence.Add(spawn);
-                GameState newState = DeepCopyUtility.DeepCopy(currentGameState);
+                GameState newState = DeepCopyUtility.Copy(currentGameState);
                 newState.ApplyMove(spawn);
                 GenerateMoveSequencesRecursive(newState, currentSequence, currentPlayer, remainingMoves, moveSequences); // Spawning does not cost action points
                 currentSequence.RemoveAt(currentSequence.Count - 1);
@@ -91,14 +100,15 @@ public abstract class BaseAI
             return;
         }
 
-        List<Move> legalMoves = currentGameState.GetLegalMoves(currentPlayer);
+        List<Move> legalMoves = currentGameState.GetLegalMoves(currentPlayer, dropChance);
         foreach (Move move in legalMoves)
         {
+            if (moveSequences.Count >= moveLimit) return;
             // Add the move to the current sequence
             currentSequence.Add(move);
 
             // Apply the move to simulate the next board state
-            GameState newState = DeepCopyUtility.DeepCopy(currentGameState);
+            GameState newState = DeepCopyUtility.Copy(currentGameState);
             newState.ApplyMove(move);
 
             // Recurse to generate further sequences

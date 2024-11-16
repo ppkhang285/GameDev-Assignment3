@@ -23,4 +23,9 @@ public class Move
         Target = target;
         Type = moveType;
     }
+
+    public override string ToString() 
+    {
+        return "Move type: " + Type.ToString() + ", Source: " + Source.ToString() + ", Target: " + Target.ToString();
+    }
 }

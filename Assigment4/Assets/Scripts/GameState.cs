@@ -14,16 +14,8 @@ public class GameState
     public GameState(int turn, (int, int, int) [][] cells, PlayerData[] players)
     {
         Turn = turn;
-
-        for (int i = 0; i < cells.Length; i++)
-        {
-            for (int j = 0; j < cells.Length; j++)
-            {
-                this.Cells[i][j] = cells[i][j]; 
-            }
-        }
-
-        Array.Copy(players, this.Players, players.Length); //TODO: may need to manually deep copy the players
+        Cells = cells;
+        Players = players;
     }
 
     public bool HasLost(int currentPlayer)
@@ -75,7 +67,7 @@ public class GameState
         Players[player].ClearBoard();
     }
 
-    public List<Move> GetLegalSpawn(int currentPlayer)
+    public List<Move> GetLegalSpawn(int currentPlayer, float dropChance)
     {
         //if (defeated[currentPlayer]) return new List<Move>(); // If player is defeated, cannot do anything
         PlayerData player = Players[currentPlayer];
@@ -91,7 +83,9 @@ public class GameState
                 CharacterData chessPiece = player.Characters[i];
                 if (!chessPiece.Spawned && chessPiece.characterStats.cost <= player.Energy) // Chess is not spawned and enough energy to spawn
                 {
-                    moves.Add(new Move(new Vector2Int(currentPlayer, i), spawnLocation, MoveType.Spawn));
+                    bool random = UnityEngine.Random.value >= dropChance;
+                    if (random)
+                        moves.Add(new Move(new Vector2Int(currentPlayer, i), spawnLocation, MoveType.Spawn));
                 }
             }
         }
@@ -99,17 +93,14 @@ public class GameState
         return moves;
     }
 
-    public List<Move> GetLegalMoves(int currentPlayer)
+    public List<Move> GetLegalMoves(int currentPlayer, float dropChance)
     {
         //if (defeated[currentPlayer]) return new List<Move>(); // If player is defeated, cannot do anything
         PlayerData player = Players[currentPlayer];
         List<Move> moves = new List<Move>();
 
-        // Doing nothing is also an option
-        moves.Add(new Move(new Vector2Int(-1, -1), new Vector2Int(-1, -1), MoveType.Idle));
-
         // Spawn chess
-        moves.AddRange(this.GetLegalSpawn(currentPlayer));
+        moves.AddRange(this.GetLegalSpawn(currentPlayer, dropChance));
 
         // Move or attack
         for (int i = 0; i < player.Characters.Length; i++)
@@ -132,7 +123,9 @@ public class GameState
                         {
                             Vector2Int target = new Vector2Int(j, k);
                             Move newMove = new Move(location, target, MoveType.CharMove);
-                            moves.Add(newMove);
+                            bool random = UnityEngine.Random.value >= dropChance;
+                            if (random)
+                                moves.Add(newMove);
                         }
                     }
                 }
@@ -148,12 +141,18 @@ public class GameState
                         {
                             Vector2Int target = new Vector2Int(j, k);
                             Move newMove = new Move(location, target, MoveType.CharAttack);
-                            moves.Add(newMove);
+                            bool random = UnityEngine.Random.value >= dropChance;
+                            if (random)
+                                moves.Add(newMove);
                         }
                     }
                 }
             }
         }
+
+        // Doing nothing is also an option
+        moves.Add(new Move(new Vector2Int(-1, -1), new Vector2Int(-1, -1), MoveType.Idle));
+
         return moves;
     }
 
@@ -230,6 +229,7 @@ public class GameState
         else         // If target is Lord
         {
             targetPlayer.LordHP -= attacker.characterStats.damage;
+            Cells[move.Target.x][move.Target.y].Item3 = targetPlayer.LordHP;
             attackPlayer.CharTakeDmg(GameConstants.LordDmg, attackerIndex);
             if (attacker.CurrentHP <= 0)
             {
