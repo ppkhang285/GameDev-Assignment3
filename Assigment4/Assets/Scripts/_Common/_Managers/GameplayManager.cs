@@ -28,6 +28,9 @@ public class GameplayManager : MonoBehaviour
         }
 
         //players = FindObjectsOfType<Player>();
+        GameObject newObject = new GameObject("DefaultObject");
+        Character testChar = newObject.AddComponent<Character>();
+        testChar.Initialize("1");
     }
 
     public int GetNextPlayer(int currentPlayer)

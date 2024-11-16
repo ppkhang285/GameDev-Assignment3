@@ -21,6 +21,10 @@ public class PlayerData
     public List<Vector2Int> SpawnLocations {get; set;} // Locations for spawning chess of all player 
     // TODO: Add constructor
 
+    public PlayerData()
+    {
+
+    }
 
     public void CharMove(Vector2Int location, int index)
     {
