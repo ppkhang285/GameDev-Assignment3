@@ -9,10 +9,10 @@ public class Character : MonoBehaviour
 {
     public CharacterData Data { get; set; }
 
-    public void Initialize(string name)
+    public void Initialize(string name, int team)
     {
         CharacterStats characterStats = AssetDatabase.LoadAssetAtPath<CharacterStats>("Assets/Scripts/Characters/Stats/" + name + ".asset");
-        Data = new CharacterData(characterStats);
+        Data = new CharacterData(characterStats, team);
         Debug.Log(Data.characterStats.hp);
     }
     // Start is called before the first frame updates
@@ -25,5 +25,25 @@ public class Character : MonoBehaviour
     void Update()
     {
         
+    }
+
+    public void CharMove()
+    {
+        // The character moves visually
+    }
+
+    public void CharAttack()
+    {
+        // The character attacks visually
+    }
+
+    public void TakeDmg()
+    {
+        // The character takes damage visually
+    }
+
+    public void Spawn()
+    {
+
     }
 }

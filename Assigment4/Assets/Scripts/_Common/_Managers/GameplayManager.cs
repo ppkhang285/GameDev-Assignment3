@@ -14,7 +14,6 @@ public class GameplayManager : MonoBehaviour
     private Player[] players;
     //private Character [][] pieces;
     private GameState gameState;
-    private int maxAP;
     private bool[] defeated;
     public const int MyPlayer = 0;
 
@@ -27,7 +26,7 @@ public class GameplayManager : MonoBehaviour
         }
         else
         {
-            Destroy(gameObject); // Prevent duplicate instances
+            Destroy(gameObject); 
         }
 
         DeckSize = GameConstants.DeckSize;
@@ -70,13 +69,12 @@ public class GameplayManager : MonoBehaviour
 
         battleHandler.StartGameLoop();
     }
+
     public int GetNextPlayer(int currentPlayer)
     {
-        return (currentPlayer + 1) % NumPlayer; // TODO: Change logic later when a player is defeated;
+        return battleHandler.GetNextPlayer(currentPlayer);
     }
-
     
-
     public void ApplyMoveSequence(List<Move> moves) // Actually change the current game state
     {
         foreach (Move move in moves)

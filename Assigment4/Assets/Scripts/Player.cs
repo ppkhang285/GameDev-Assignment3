@@ -20,7 +20,7 @@ public class Player : MonoBehaviour
             characters[i] = character.AddComponent<Character>();
 
             int assetNo = 2 * i + deckNo; // Deck 0 includes even-number characters, Deck 1 includes odd-number characters
-            characters[i].Initialize(assetNo.ToString());
+            characters[i].Initialize(assetNo.ToString(), playerNo);
             characterData[i] = characters[i].Data;
         }
         Location = location;
@@ -38,4 +38,34 @@ public class Player : MonoBehaviour
     {
         
     }
+
+    public void CharMove(Vector2Int location, int index)
+    {
+        Data.CharMove(location, index); // Move logically
+        characters[index].CharMove();
+    }
+
+    public void CharAttack(int index)
+    {
+        Data.CharAttack(index); // Attack logically
+        characters[index].CharAttack();
+    }
+
+    public void CharTakeDmg(int dmg, int index)
+    {
+        Data.CharTakeDmg(dmg, index);
+        characters[index].TakeDmg();
+    }
+
+    public void SpawnChar(Vector2Int location, int index)
+    {
+        Data.SpawnChar(location, index);
+        characters[index].Spawn();
+    }
+
+    public void TakeDmg(int dmg)
+    {
+        Data.LordHP -= dmg;
+    }
+
 }

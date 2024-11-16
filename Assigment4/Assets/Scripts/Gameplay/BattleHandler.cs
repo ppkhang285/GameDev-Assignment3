@@ -62,9 +62,15 @@ public class BattleHandler : MonoBehaviour
         
     }
 
+    public int GetNextPlayer(int currentIdx) // TODO: Change logic later when a player is defeated;
+    {
+        
+        return (currentIdx + 1) % playerPool.Length;
+    }
+
     private void ChangeTurn()
     {
         int currentIdx = System.Array.IndexOf(playerPool, currentPlayer);
-        currentPlayer = playerPool[(currentIdx + 1) % playerPool.Length];
+        currentPlayer = playerPool[GetNextPlayer(currentIdx)];
     }
 }
