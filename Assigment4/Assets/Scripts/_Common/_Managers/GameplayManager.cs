@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 public class GameplayManager : MonoBehaviour
@@ -11,7 +12,7 @@ public class GameplayManager : MonoBehaviour
     public int DeckSize { get; private set; }
     public int BoardSize { get; private set; }
     public int NumPlayer { get; private set; }
-    private Player[] players;
+    private GameObject[] players;
     //private Character [][] pieces;
     private GameState gameState;
     private bool[] defeated;
@@ -32,7 +33,7 @@ public class GameplayManager : MonoBehaviour
         DeckSize = GameConstants.DeckSize;
         BoardSize = GameConstants.BoardSize;
         NumPlayer = 2; // TODO: receive num player from other scenes
-        players = new Player[NumPlayer];
+        players = new GameObject[NumPlayer];
         Vector2Int[] locations = new Vector2Int[NumPlayer];
 
         if (NumPlayer < 2 || NumPlayer > 4)
@@ -56,9 +57,10 @@ public class GameplayManager : MonoBehaviour
         }
         for (int i = 0; i < NumPlayer; i++)
         {
-            GameObject player = new GameObject("DefaultObject");
-            players[i] = player.AddComponent<Player>();
-            players[i].Initialize(i, i, PlayerType.AI, locations[i]);
+            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Lords/Lord_" + i.ToString() + ".prefab");
+            players[i] = Instantiate(prefab);
+            Player player = players[i].GetComponent<Player>();
+            player.Initialize(i, i, PlayerType.AI, locations[i]);
         }
     }
 

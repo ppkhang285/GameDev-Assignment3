@@ -13,7 +13,7 @@ public class Character : MonoBehaviour
     {
         CharacterStats characterStats = AssetDatabase.LoadAssetAtPath<CharacterStats>("Assets/Scripts/Characters/Stats/" + name + ".asset");
         Data = new CharacterData(characterStats, team);
-        Debug.Log(Data.characterStats.hp);
+        //Debug.Log(Data.characterStats.hp);
     }
     // Start is called before the first frame updates
     void Start()
@@ -40,10 +40,5 @@ public class Character : MonoBehaviour
     public void TakeDmg()
     {
         // The character takes damage visually
-    }
-
-    public void Spawn()
-    {
-
     }
 }

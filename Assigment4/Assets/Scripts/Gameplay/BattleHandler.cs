@@ -3,12 +3,14 @@ using UnityEngine;
 
 public class BattleHandler : MonoBehaviour
 {
+    public BoardSpawner Spawner;
     private enum GameplayState { Start, Playing, GameOver };
     private enum PlayerTurn { Player1Turn, Player2Turn, Player3Turn, Player4Turn }
 
     private GameplayState currentState;
     private PlayerTurn[] playerPool;
     private PlayerTurn currentPlayer;
+
 
     public void StartGameLoop()
     {
@@ -19,6 +21,7 @@ public class BattleHandler : MonoBehaviour
     private void Setup()
     {
         int playerNum = GameplayManager.Instance.NumPlayer;
+        Spawner.SpawnBoard();
 
         // Initialize playerPool based on playerNum
         playerPool = new PlayerTurn[playerNum];

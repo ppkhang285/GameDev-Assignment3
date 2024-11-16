@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 
@@ -7,21 +8,21 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
     public PlayerData Data { get; set; }
-    private Character[] characters;
+    private GameObject[] characters;
     public Vector2Int Location { get; private set; }
 
     public void Initialize(int playerNo, int deckNo, PlayerType type, Vector2Int location)
     {
         CharacterData[] characterData = new CharacterData[GameConstants.DeckSize];
-        characters = new Character[GameConstants.DeckSize];
+        characters = new GameObject[GameConstants.DeckSize];
         for (int i = 0; i < GameConstants.DeckSize; i ++) // Initialize all characters in the deck
         {
-            GameObject character = new GameObject("DefaultObject");
-            characters[i] = character.AddComponent<Character>();
-
             int assetNo = 2 * i + deckNo; // Deck 0 includes even-number characters, Deck 1 includes odd-number characters
-            characters[i].Initialize(assetNo.ToString(), playerNo);
-            characterData[i] = characters[i].Data;
+            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Characters/Character_" + assetNo.ToString() + ".prefab");
+            characters[i] = Instantiate(prefab);
+            Character character = characters[i].GetComponent<Character>();
+            character.Initialize(assetNo.ToString(), playerNo);
+            characterData[i] = character.Data;
         }
         Location = location;
 
@@ -41,31 +42,22 @@ public class Player : MonoBehaviour
 
     public void CharMove(Vector2Int location, int index)
     {
-        Data.CharMove(location, index); // Move logically
-        characters[index].CharMove();
+
     }
 
     public void CharAttack(int index)
     {
-        Data.CharAttack(index); // Attack logically
-        characters[index].CharAttack();
+
     }
 
     public void CharTakeDmg(int dmg, int index)
     {
-        Data.CharTakeDmg(dmg, index);
-        characters[index].TakeDmg();
+
     }
 
     public void SpawnChar(Vector2Int location, int index)
     {
-        Data.SpawnChar(location, index);
-        characters[index].Spawn();
-    }
 
-    public void TakeDmg(int dmg)
-    {
-        Data.LordHP -= dmg;
     }
 
 }
