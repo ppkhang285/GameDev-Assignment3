@@ -70,16 +70,11 @@ public class GameplayManager : MonoBehaviour
         battleHandler.StartGameLoop();
     }
 
-    public int GetNextPlayer() {return battleHandler.GetNextPlayer(defeated);}
+    public int GetNextPlayer(int currentPlayer)
+    {
+        return battleHandler.GetNextPlayer(currentPlayer);
+    }
     
-    public int SeekNextPlayer(){return battleHandler.SeekNextPlayer(defeated);}
-
-    public bool [] GetDefeatedList(){
-        for (int i = 0; i < NumPlayer; i++)
-            defeated[i] = gameState.HasLost(i);
-        return defeated;
-    } 
-
     public void ApplyMoveSequence(List<Move> moves) // Actually change the current game state
     {
         foreach (Move move in moves)
@@ -87,8 +82,6 @@ public class GameplayManager : MonoBehaviour
             gameState.ApplyMove(move);
         }
     }
-
-
 
 
     

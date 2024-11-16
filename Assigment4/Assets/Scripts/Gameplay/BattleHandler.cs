@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class BattleHandler : MonoBehaviour
@@ -8,9 +7,7 @@ public class BattleHandler : MonoBehaviour
     private enum PlayerTurn { Player1Turn, Player2Turn, Player3Turn, Player4Turn }
 
     private GameplayState currentState;
-    // private PlayerTurn[] playerPool;
-    private Queue<PlayerTurn> playerPool;
-
+    private PlayerTurn[] playerPool;
     private PlayerTurn currentPlayer;
 
     public void StartGameLoop()
@@ -24,13 +21,14 @@ public class BattleHandler : MonoBehaviour
         int playerNum = GameplayManager.Instance.NumPlayer;
 
         // Initialize playerPool based on playerNum
-        playerPool = new Queue<PlayerTurn>();
+        playerPool = new PlayerTurn[playerNum];
         for (int i = 0; i < playerNum; i++)
         {
-            playerPool.Enqueue((PlayerTurn)i);
+            playerPool[i] = (PlayerTurn)i;
         }
+
         currentState = GameplayState.Start;
-        currentPlayer = playerPool.Dequeue();
+        currentPlayer = playerPool[0]; // Start with Player 1
     }
 
     private IEnumerator GameLoop()
@@ -64,13 +62,10 @@ public class BattleHandler : MonoBehaviour
         
     }
 
-    public int GetNextPlayer(bool[] defeated) 
+    public int GetNextPlayer(int currentIdx) // TODO: Change logic later when a player is defeated;
     {
-        this.CheckPlayer(defeated);
-        // Mimic cycling queue
-        int currentPlayer = int(playerPool.Dequeue());
-        playerPool.Enqueue(currentPlayer);
-        return currentPlayer;
+        
+        return (currentIdx + 1) % playerPool.Length;
     }
 
     private void ChangeTurn()
@@ -78,14 +73,4 @@ public class BattleHandler : MonoBehaviour
         int currentIdx = System.Array.IndexOf(playerPool, currentPlayer);
         currentPlayer = playerPool[GetNextPlayer(currentIdx)];
     }
-    public int SeekNextPlayer(){
-        this.CheckQueue(defeated);
-        return (int)playerPool.Peek();
-    }
-
-    private void CheckPlayer(bool[] defeated){
-        while (defeated [(int)playerPool.Peek()]);
-            playerPool.Dequeue();
-    }
 }
-

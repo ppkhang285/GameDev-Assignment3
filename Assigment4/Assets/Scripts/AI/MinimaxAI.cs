@@ -43,7 +43,7 @@ public class MinimaxAI : BaseAI
         foreach (List<Move> sequence in moveSequences)
         {
             GameState newState = SimulateMoveSequence(gameState, sequence);
-            float[] value = Minimax(newState, depth - 1, gameplayManager.SeekNextPlayer()).Item1;
+            float[] value = Minimax(newState, depth - 1, gameplayManager.GetNextPlayer(currentPlayer)).Item1;
 
             if (model)
                 TrainModel(newState, value);
@@ -76,7 +76,7 @@ public class MinimaxAI : BaseAI
             float[] value = AlphaBeta(
                 newState,
                 depth - 1,
-                gameplayManager.SeekNextPlayer(),
+                gameplayManager.GetNextPlayer(currentPlayer),
                 (float[])alpha.Clone(),
                 (float[])beta.Clone()
             ).Item1;
