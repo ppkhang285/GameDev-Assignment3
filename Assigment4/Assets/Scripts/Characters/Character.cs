@@ -1,5 +1,7 @@
+using NaughtyAttributes;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 
@@ -39,5 +41,15 @@ public class Character : MonoBehaviour
     public void TakeDmg()
     {
         // The character takes damage visually
+    }
+
+    [Button]
+    public void Test()
+    {
+
+        Animator animator = GetComponent<Animator>();
+        Debug.Log(animator.name);
+        Debug.Log("Play anim");
+        animator.Play("idle_left");
     }
 }
