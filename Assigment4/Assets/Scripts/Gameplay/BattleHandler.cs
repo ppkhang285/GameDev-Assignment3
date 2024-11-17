@@ -86,7 +86,7 @@ public class BattleHandler : MonoBehaviour
                 sellectedCell = null; // Reset buffer for next player turn/action 
             }
             if (spawnCell!= null){
-                // Clear buffered click
+                // Handling spawn action (require valid spawn key to unlock)
                 for (int keyval = 0; keyval <= 9; keyval++){
                     KeyCode key = keyval + KeyCode.Alpha0;
                     if (Input.GetKey(key)){
@@ -96,6 +96,7 @@ public class BattleHandler : MonoBehaviour
                         } else if (currentPlayerData.Characters[keyval].Spawned) {
                             Debug.Log("Illegal spawn: Character already spawned");
                         } else {
+                            // Clear buffered click
                             Vector2Int prevCell= spawnCell.Value;
                             spawnCell = null;
                             Move NewMove = new Move(new Vector2Int(GetCurrentPlayer(), keyval), prevCell, MoveType.Spawn);
@@ -109,6 +110,7 @@ public class BattleHandler : MonoBehaviour
             {
                 int curPlayer = GetCurrentPlayer();
                 Vector2Int clickedCell = Spawner.GetClickedCell();
+                if (clickedCell.x <0 || clickedCell.y <0 || clickedCell.x > GameConstants.BoardSize || clickedCell.y > GameConstants.BoardSize) yield break; // Clicked outside the board will cancel everything
                 int mappedChar = -2;
                 Debug.Log($"Clicked cell: Row {clickedCell.y}, Column {clickedCell.x}");
                 (int,int,int) cell = GameplayManager.Instance.gameState.Cells[clickedCell.y][clickedCell.x];
