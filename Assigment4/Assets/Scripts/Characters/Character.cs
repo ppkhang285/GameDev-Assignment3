@@ -13,7 +13,6 @@ public class Character : MonoBehaviour
     {
         CharacterStats characterStats = AssetDatabase.LoadAssetAtPath<CharacterStats>("Assets/Scripts/Characters/Stats/" + name + ".asset");
         Data = new CharacterData(characterStats, team);
-        //Debug.Log(Data.characterStats.hp);
     }
     // Start is called before the first frame updates
     void Start()

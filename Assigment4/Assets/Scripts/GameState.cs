@@ -51,6 +51,12 @@ public class GameState
         }
         return true;
     }
+    public void ChangeTurn(int player, int energyAmount)
+    {
+        if ((Turn - 1 - player) / Players.Length < GameConstants.TurnReceiveEnergy)
+            Players[player].ReceiveEnergy(energyAmount);
+        Players[player].RestoreAP();
+    }
 
     public void ClearBoard(int player) // Clear the cells that has player's lord or character 
     {
@@ -113,15 +119,18 @@ public class GameState
                 int attackRange = chessPiece.characterStats.attackRange;
 
                 // Possible cells to move
-                for (int j = location.x - movementRange; j <= location.x + movementRange; j++)
+                for (int j = movementRange; j <= movementRange; j++)
                 {
-                    for (int k = location.y - movementRange; k <= location.y + movementRange; k++)
+                    int remain = movementRange - Mathf.Abs(j);
+                    for (int k = -remain; k <= remain; k++)
                     {
-                        if (j < 0 || j >= Cells.Length || k < 0 || k >= Cells.Length) continue; // Out of the board
-                        if (j == location.x && k == location.y) continue; // The chess's current cell
-                        if (Cells[j][k].Item1 == -1) // Cell is empty
+                        if (location.x + j < 0 || location.x + j >= Cells.Length || location.y + k < 0 || location.y + k >= Cells.Length) continue; // Out of the board
+                        if (j == 0 && k == 0) continue; // The chess's current cell
+                        if (currentPlayer == 0)
+                            Debug.Log("Turn " + Turn.ToString() + ", character " + i.ToString() + " can move to this cell");
+                        if (Cells[location.x + j][location.y + k].Item1 == -1) // Cell is empty
                         {
-                            Vector2Int target = new Vector2Int(j, k);
+                            Vector2Int target = new Vector2Int(location.x + j, location.y + k);
                             Move newMove = new Move(location, target, MoveType.CharMove);
                             bool random = UnityEngine.Random.value >= dropChance;
                             if (random)
@@ -131,15 +140,16 @@ public class GameState
                 }
 
                 // Possible cells to attack
-                for (int j = location.x - attackRange; j <= location.x + attackRange; j++)
+                for (int j = -attackRange; j <= attackRange; j++)
                 {
-                    for (int k = location.y - attackRange; k <= location.y + attackRange; k++)
+                    int remain = attackRange - Mathf.Abs(j);
+                    for (int k = -remain; k <= remain; k++)
                     {
-                        if (j < 0 || j >= Cells.Length || k < 0 || k >= Cells.Length) continue; // Out of the board
-                        if (j == location.x && k == location.y) continue; // The chess's current cell
-                        if (Cells[j][k].Item1 != -1 && Cells[j][k].Item1 != currentPlayer) // Cell is not empty and the piece in the cell is of enemy team 
+                        if (location.x + j < 0 || location.x + j >= Cells.Length || location.y + k < 0 || location.y + k >= Cells.Length) continue; // Out of the board
+                        if (j == 0 && k == 0) continue; // The chess's current cell
+                        if (Cells[location.x + j][location.y + k].Item1 != -1 && Cells[location.x + j][location.y + k].Item1 != currentPlayer) // Cell is not empty and the piece in the cell is of enemy team 
                         {
-                            Vector2Int target = new Vector2Int(j, k);
+                            Vector2Int target = new Vector2Int(location.x + j, location.y + k);
                             Move newMove = new Move(location, target, MoveType.CharAttack);
                             bool random = UnityEngine.Random.value >= dropChance;
                             if (random)
@@ -175,8 +185,8 @@ public class GameState
         int chessIndex = sourceCell.Item2;
         player.CharMove(new Vector2Int(move.Target.x, move.Target.y), chessIndex);
 
-        Cells[move.Target.x][move.Target.y] = Cells[move.Source.x][move.Source.y]; ;
-        Cells[move.Source.x][move.Source.y] = (-1, -1, 0); ; // Source becomes empty
+        Cells[move.Target.x][move.Target.y] = Cells[move.Source.x][move.Source.y];
+        Cells[move.Source.x][move.Source.y] = (-1, -1, 0); // Source becomes empty
 
         for (int i = 0; i < Players.Length; i++)
         {

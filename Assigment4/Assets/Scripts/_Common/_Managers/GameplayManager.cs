@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -64,7 +65,7 @@ public class GameplayManager : MonoBehaviour
             player.Initialize(i, i, PlayerType.AI, locations[i]);
         }
 
-        string level = "Normal";
+        string level = "Easy";
         if (level == "Easy")
             AI = new RandomAI(100, 0.0f);
         if (level == "Normal")
@@ -88,13 +89,7 @@ public class GameplayManager : MonoBehaviour
             }
         }
 
-        PlayerData[] data = new PlayerData[NumPlayer];
-        for (int i = 0; i < NumPlayer; i++)
-        {
-            data[i] = players[i].GetComponent<Player>().Data;
-        }
-
-        gameState = new GameState(1, cells, data);
+        gameState = new GameState(1, cells, players.Select(p => p.GetComponent<Player>().Data).ToArray());
     }
 
     private void Start()
@@ -109,12 +104,7 @@ public class GameplayManager : MonoBehaviour
     {
         gameState.Turn += 1;
         int currentPlayer = battleHandler.GetCurrentPlayer();
-        if ((gameState.Turn - 1 - currentPlayer) / NumPlayer < GameConstants.TurnReceiveEnergy) 
-        {
-            PlayerData data = players[currentPlayer].GetComponent<Player>().Data;
-            data.AP += GameConstants.EnergyPerTurn;
-        }
-
+        gameState.ChangeTurn(currentPlayer, GameConstants.EnergyPerTurn);
     }
 
     public int GetNextPlayer(int currentPlayer)

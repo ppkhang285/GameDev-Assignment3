@@ -79,6 +79,21 @@ public class PlayerData
         character.Spawn(location);
     }
 
+    public void RestoreAP()
+    {
+        foreach (CharacterData character in Characters)
+        {
+            character.AP = 1;
+        }
+    }
+
+    public void ReceiveEnergy(int amount)
+    {
+        Energy += amount;
+        if (PlayerNo == 0)
+            Debug.Log("After receiving energy: " + Energy.ToString());
+    }
+
     public bool IsDead()
     {
         return LordHP <= 0 || OutOfChess();

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -13,7 +14,6 @@ public class Player : MonoBehaviour
 
     public void Initialize(int playerNo, int deckNo, PlayerType type, Vector2Int location)
     {
-        CharacterData[] characterData = new CharacterData[GameConstants.DeckSize];
         characters = new GameObject[GameConstants.DeckSize];
         for (int i = 0; i < GameConstants.DeckSize; i ++) // Initialize all characters in the deck
         {
@@ -22,11 +22,10 @@ public class Player : MonoBehaviour
             characters[i] = Instantiate(prefab);
             Character character = characters[i].GetComponent<Character>();
             character.Initialize(assetNo.ToString(), playerNo);
-            characterData[i] = character.Data;
         }
         Location = location;
 
-        Data = new PlayerData(playerNo, type, characterData, location);
+        Data = new PlayerData(playerNo, type, characters.Select(p => p.GetComponent<Character>().Data).ToArray(), location);
     }
     // Start is called before the first frame update
     void Start()

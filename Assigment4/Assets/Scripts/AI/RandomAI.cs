@@ -11,5 +11,11 @@ public class RandomAI : BaseAI
         List<List<Move>> moveSequences = GetMoveSequences(gameState, currentPlayer);
         int randomIndex = Random.Range(0, moveSequences.Count);
         return moveSequences[randomIndex];
+
+        //List<Move> legalMoves = gameState.GetLegalMoves(currentPlayer, dropChance);
+        //int randomIndex = Random.Range(0, legalMoves.Count);
+        //List<Move> moves = new List<Move>();
+        //moves.Add(legalMoves[randomIndex]);
+        //return moves;
     }
 }
