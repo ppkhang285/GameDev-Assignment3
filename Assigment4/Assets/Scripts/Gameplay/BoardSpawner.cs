@@ -100,4 +100,18 @@ public class BoardSpawner : MonoBehaviour
         return cell.x >= 0 && cell.x < FIELD_SIZE &&
                cell.y >= 0 && cell.y < FIELD_SIZE;
     }
+
+    public Vector3 GetWorldPosition(Vector2Int gridPosition)
+    {
+        if (!IsValidCell(gridPosition))
+        {
+            return field.transform.position; // Return field origin for invalid positions
+        }
+
+        Vector3 worldPosition = field.transform.position;
+        worldPosition.x += panelSize.x * gridPosition.x;
+        worldPosition.y -= panelSize.y * gridPosition.y;
+
+        return worldPosition;
+    }
 }

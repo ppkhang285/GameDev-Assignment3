@@ -120,42 +120,61 @@ public class GameplayManager : MonoBehaviour
     {
 
         // Move visually first then logically
-        //foreach (Move move in moves)
-        //{
-        //    ApplyMove(move);
-        //}
+        foreach (Move move in moves)
+        {
+            ApplyMove(move);
+        }
         foreach (Move move in moves)
         {
             gameState.ApplyMove(move);
         }
     }
 
-    //public void ApplyMove(Move move)
-    //{
-    //    if (move.Type == MoveType.CharMove)
-    //        ApplyCharMove(move);
-    //    else if (move.Type == MoveType.CharAttack)
-    //        ApplyCharAttack(move);
-    //    else if (move.Type == MoveType.Spawn)
-    //        ApplySpawn(move);
-    //    else;
-    //}
+    public void ApplyMove(Move move)
+    {
+        if (move.Type == MoveType.CharMove)
+            ApplyCharMove(move);
+        else if (move.Type == MoveType.CharAttack)
+            ApplyCharAttack(move);
+        else if (move.Type == MoveType.Spawn)
+            ApplySpawn(move);
+        else;
+        gameState.ApplyMove(move);
+    }
 
-    //public void ApplyCharMove(Move move)
-    //{
-    //    Vector2 start = Mapping(move.Source); // TODO: map the cell index to coordinate in scenario
-    //    Vector2 destination = Mapping(move.Target);
-    //    int player = gameState.Cells[move.Source.y][move.Source.x].Item1; // Get the player that does the move
-    //    int charIndex = gameState.Cells[move.Source.y][move.Source.x].Item2; 
-    //    GameObject character = players[player].GetComponent<Player>().characters[charIndex]; // Get the character that needs to move
+    public void ApplyCharMove(Move move)
+    {
+        Vector3 start = battleHandler.Spawner.GetWorldPosition(move.Source);
+        Vector3 destination = battleHandler.Spawner.GetWorldPosition(move.Target);
+        int player = gameState.Cells[move.Source.y][move.Source.x].Item1; // Get the player that does the move
+        int charIndex = gameState.Cells[move.Source.y][move.Source.x].Item2;
+        GameObject character = players[player].GetComponent<Player>().characters[charIndex]; // Get the character that needs to move
+        bool direction = destination.x > start.x;
+        character.GetComponent<Character>().CharMove(direction);
+        // TODO: add moving anim
+    }
 
-    //    // TODO: add anim for it
-    //}
+    public void ApplyCharAttack(Move move)
+    {
+        Vector3 start = battleHandler.Spawner.GetWorldPosition(move.Source);
+        Vector3 destination = battleHandler.Spawner.GetWorldPosition(move.Target);
+        int player = gameState.Cells[move.Source.y][move.Source.x].Item1; // Get the player that does the attack
+        int charIndex = gameState.Cells[move.Source.y][move.Source.x].Item2;
+        GameObject character = players[player].GetComponent<Player>().characters[charIndex]; // Get the character that needs to attack
+        bool direction = destination.x > start.x;
+        character.GetComponent<Character>().CharAttack(direction);
+        // TODO: add attacking anim
+    }
 
-    //public void ApplyCharAttack(Move move)
-    //{
+    public void ApplySpawn(Move move)
+    {
+        Vector3 destination = battleHandler.Spawner.GetWorldPosition(move.Target); // The position to spawn the character
+        int player = gameState.Cells[move.Source.y][move.Source.x].Item1; // Get the player that does the spawn
+        int charIndex = gameState.Cells[move.Source.y][move.Source.x].Item2;
+        GameObject character = players[player].GetComponent<Player>().characters[charIndex]; // Get the character that needs to spawn
 
-    //}
+        // TODO: add spawn anim
+    }
 
-    
+
 }
