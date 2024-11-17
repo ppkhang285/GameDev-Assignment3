@@ -62,7 +62,7 @@ public class GameplayManager : MonoBehaviour
             GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Lords/Lord_" + i.ToString() + ".prefab");
             players[i] = Instantiate(prefab);
             Player player = players[i].GetComponent<Player>();
-            player.Initialize(i, i, PlayerType.AI, locations[i]);
+            player.Initialize(i, i, PlayerType.Human, locations[i]);
         }
 
         string level = "Easy";
@@ -118,12 +118,44 @@ public class GameplayManager : MonoBehaviour
     
     public void ApplyMoveSequence(List<Move> moves) // Actually change the current game state
     {
+
+        // Move visually first then logically
+        //foreach (Move move in moves)
+        //{
+        //    ApplyMove(move);
+        //}
         foreach (Move move in moves)
         {
             gameState.ApplyMove(move);
         }
     }
 
+    //public void ApplyMove(Move move)
+    //{
+    //    if (move.Type == MoveType.CharMove)
+    //        ApplyCharMove(move);
+    //    else if (move.Type == MoveType.CharAttack)
+    //        ApplyCharAttack(move);
+    //    else if (move.Type == MoveType.Spawn)
+    //        ApplySpawn(move);
+    //    else;
+    //}
+
+    //public void ApplyCharMove(Move move)
+    //{
+    //    Vector2 start = Mapping(move.Source); // TODO: map the cell index to coordinate in scenario
+    //    Vector2 destination = Mapping(move.Target);
+    //    int player = gameState.Cells[move.Source.y][move.Source.x].Item1; // Get the player that does the move
+    //    int charIndex = gameState.Cells[move.Source.y][move.Source.x].Item2; 
+    //    GameObject character = players[player].GetComponent<Player>().characters[charIndex]; // Get the character that needs to move
+
+    //    // TODO: add anim for it
+    //}
+
+    //public void ApplyCharAttack(Move move)
+    //{
+
+    //}
 
     
 }

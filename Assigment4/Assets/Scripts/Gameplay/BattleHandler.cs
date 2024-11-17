@@ -63,11 +63,6 @@ public class BattleHandler : MonoBehaviour
     {
         //Debug.Log(currentPlayer + " is taking their turn.");
         List<Move> sequence = GameplayManager.Instance.AI.GetMove(GameplayManager.Instance.gameState, System.Array.IndexOf(playerPool, currentPlayer));
-        //foreach (Move move in sequence)
-        //{
-        //    if (move.Type != MoveType.Idle)
-        //        Debug.Log("Turn " + GameplayManager.Instance.gameState.Turn.ToString() + ": " + move.ToString());
-        //}
         GameplayManager.Instance.ApplyMoveSequence(sequence);
         yield return null;
     }
@@ -75,10 +70,28 @@ public class BattleHandler : MonoBehaviour
     private IEnumerator HandlePlayerTurn()
     {
         // Simulate waiting for the player's actions (replace with real input logic)
-        Debug.Log(currentPlayer + " is taking their turn.");
-        yield return new WaitForSeconds(2f); // Placeholder for player input duration
+        // Debug.Log(currentPlayer + " is taking their turn.");
+        List<Move> sequence = GameplayManager.Instance.AI.GetMove(GameplayManager.Instance.gameState, System.Array.IndexOf(playerPool, currentPlayer));
+        bool turnEnded = false;
 
-        // Logic to detect end of turn can be added here
+        while (!turnEnded)
+        {
+            if (Input.GetKeyDown(KeyCode.Return)) // TODO: check "End Turn" button click
+            {
+                Debug.Log("Player ended their turn.");
+                GameplayManager.Instance.ApplyMoveSequence(sequence);
+                turnEnded = true;
+            }
+
+            if (Input.GetMouseButtonDown(0)) // Left mouse click
+            {
+                Vector2Int clickedCell = Spawner.GetClickedCell();
+                Debug.Log($"Clicked cell: Row {clickedCell.y}, Column {clickedCell.x}");
+            }
+
+            // Wait until the next frame to check again
+            yield return null;
+        }
         
     }
 

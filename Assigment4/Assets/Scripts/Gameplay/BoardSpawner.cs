@@ -8,12 +8,22 @@ public class BoardSpawner : MonoBehaviour
     [SerializeField] private GameObject panelPrefab;
     [SerializeField] private GameObject field;
 
-    private const int FIELD_SIZE = 10;
+    private const int FIELD_SIZE = GameConstants.BoardSize;
     private Vector2 panelSize;
+    private Vector2 fieldOrigin;
+    private Camera mainCamera;
+    private Vector2Int lastClickedCell = new Vector2Int(-1, -1);
+
+    private void Start()
+    {
+        mainCamera = Camera.main;
+    }
+
     public void SpawnBoard()
     {
         GetSpriteSize();
         SpawnField();
+        //CacheFieldOrigin();
     }
 
     private void GetSpriteSize()
@@ -52,5 +62,42 @@ public class BoardSpawner : MonoBehaviour
         }
     }
 
-    
+    private void CacheFieldOrigin()
+    {
+        fieldOrigin = field.transform.position;
+    }
+
+    // This function converts mouse position to grid coordinates
+    public Vector2Int GetClickedCell()
+    {
+        // Convert mouse position to world ray
+        Vector3 mousePos = Input.mousePosition;
+        Ray ray = mainCamera.ScreenPointToRay(mousePos);
+        RaycastHit2D hit = Physics2D.Raycast(ray.origin, ray.direction);
+
+        // Check if we hit something
+        if (hit.collider != null && hit.collider.gameObject.transform.parent == field.transform)
+        {
+            // Get the name of the panel which was set as "row_column"
+            string[] coordinates = hit.collider.gameObject.name.Split('_');
+            if (coordinates.Length == 2 &&
+                int.TryParse(coordinates[0], out int row) &&
+                int.TryParse(coordinates[1], out int column))
+            {
+                Vector2Int cellPos = new Vector2Int(column, row);
+                if (IsValidCell(cellPos))
+                {
+                    return cellPos;
+                }
+            }
+        }
+
+        return new Vector2Int(-1, -1); // Return (-1, -1) if clicked outside the board
+    }
+
+    private bool IsValidCell(Vector2Int cell)
+    {
+        return cell.x >= 0 && cell.x < FIELD_SIZE &&
+               cell.y >= 0 && cell.y < FIELD_SIZE;
+    }
 }

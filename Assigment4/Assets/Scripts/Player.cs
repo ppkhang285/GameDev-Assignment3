@@ -9,7 +9,7 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
     public PlayerData Data { get; set; }
-    private GameObject[] characters;
+    public GameObject[] characters;
     public Vector2Int Location { get; private set; }
 
     public void Initialize(int playerNo, int deckNo, PlayerType type, Vector2Int location)
