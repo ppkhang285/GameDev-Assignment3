@@ -130,8 +130,8 @@ public class GameplayManager : MonoBehaviour
         }
     }
 
-    //public void ApplyMove(Move move)
-    //{
+    public void ApplyMove(Move move)
+    {
     //    if (move.Type == MoveType.CharMove)
     //        ApplyCharMove(move);
     //    else if (move.Type == MoveType.CharAttack)
@@ -139,23 +139,27 @@ public class GameplayManager : MonoBehaviour
     //    else if (move.Type == MoveType.Spawn)
     //        ApplySpawn(move);
     //    else;
-    //}
+    }
 
-    //public void ApplyCharMove(Move move)
-    //{
+    public void ApplyCharMove(Move move)
+    {
     //    Vector2 start = Mapping(move.Source); // TODO: map the cell index to coordinate in scenario
     //    Vector2 destination = Mapping(move.Target);
     //    int player = gameState.Cells[move.Source.y][move.Source.x].Item1; // Get the player that does the move
     //    int charIndex = gameState.Cells[move.Source.y][move.Source.x].Item2; 
     //    GameObject character = players[player].GetComponent<Player>().characters[charIndex]; // Get the character that needs to move
 
-    //    // TODO: add anim for it
-    //}
+       // TODO: add anim for it
+    }
 
-    //public void ApplyCharAttack(Move move)
-    //{
+    public void ApplyCharAttack(Move move)
+    {
 
-    //}
+    }
+
+    public void ApplySpawn(Move move){
+
+    }
 
     
 }
