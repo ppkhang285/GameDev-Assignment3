@@ -83,7 +83,7 @@ public class GameState
         foreach (Vector2Int spawnLocation in player.SpawnLocations)
         {
             // Spawning location is occupied by other chess 
-            if (Cells[spawnLocation.x][spawnLocation.y].Item1 != -1) continue;
+            if (Cells[spawnLocation.y][spawnLocation.x].Item1 != -1) continue;
             for (int i = 0; i < player.Characters.Length; i++)
             {
                 CharacterData chessPiece = player.Characters[i];
@@ -119,16 +119,14 @@ public class GameState
                 int attackRange = chessPiece.characterStats.attackRange;
 
                 // Possible cells to move
-                for (int j = movementRange; j <= movementRange; j++)
+                for (int j = -movementRange; j <= movementRange; j++)
                 {
                     int remain = movementRange - Mathf.Abs(j);
                     for (int k = -remain; k <= remain; k++)
                     {
                         if (location.x + j < 0 || location.x + j >= Cells.Length || location.y + k < 0 || location.y + k >= Cells.Length) continue; // Out of the board
                         if (j == 0 && k == 0) continue; // The chess's current cell
-                        if (currentPlayer == 0)
-                            Debug.Log("Turn " + Turn.ToString() + ", character " + i.ToString() + " can move to this cell");
-                        if (Cells[location.x + j][location.y + k].Item1 == -1) // Cell is empty
+                        if (Cells[location.y + k][location.x + j].Item1 == -1) // Cell is empty
                         {
                             Vector2Int target = new Vector2Int(location.x + j, location.y + k);
                             Move newMove = new Move(location, target, MoveType.CharMove);
@@ -147,7 +145,7 @@ public class GameState
                     {
                         if (location.x + j < 0 || location.x + j >= Cells.Length || location.y + k < 0 || location.y + k >= Cells.Length) continue; // Out of the board
                         if (j == 0 && k == 0) continue; // The chess's current cell
-                        if (Cells[location.x + j][location.y + k].Item1 != -1 && Cells[location.x + j][location.y + k].Item1 != currentPlayer) // Cell is not empty and the piece in the cell is of enemy team 
+                        if (Cells[location.y + k][location.x + j].Item1 != -1 && Cells[location.y + k][location.x + j].Item1 != currentPlayer) // Cell is not empty and the piece in the cell is of enemy team 
                         {
                             Vector2Int target = new Vector2Int(location.x + j, location.y + k);
                             Move newMove = new Move(location, target, MoveType.CharAttack);
@@ -180,13 +178,13 @@ public class GameState
 
     public void ApplyCharMove(Move move)
     {
-        (int, int, int) sourceCell = Cells[move.Source.x][move.Source.y];
+        (int, int, int) sourceCell = Cells[move.Source.y][move.Source.x];
         PlayerData player = Players[sourceCell.Item1]; 
         int chessIndex = sourceCell.Item2;
         player.CharMove(new Vector2Int(move.Target.x, move.Target.y), chessIndex);
 
-        Cells[move.Target.x][move.Target.y] = Cells[move.Source.x][move.Source.y];
-        Cells[move.Source.x][move.Source.y] = (-1, -1, 0); // Source becomes empty
+        Cells[move.Target.y][move.Target.x] = (Cells[move.Source.y][move.Source.x].Item1, Cells[move.Source.y][move.Source.x].Item2, Cells[move.Source.y][move.Source.x].Item3);
+        Cells[move.Source.y][move.Source.x] = (-1, -1, 0); // Source becomes empty
 
         for (int i = 0; i < Players.Length; i++)
         {
@@ -208,19 +206,19 @@ public class GameState
     {
         PlayerData player = Players[move.Source.x];
         int chessIndex = move.Source.y;
-        Cells[move.Target.x][move.Target.y] = (move.Source.x, chessIndex, player.Characters[chessIndex].characterStats.hp);
+        Cells[move.Target.y][move.Target.x] = (move.Source.x, chessIndex, player.Characters[chessIndex].characterStats.hp);
         player.SpawnChar(new Vector2Int(move.Target.x, move.Target.y), chessIndex);
     }
 
     public void ApplyCharAttack(Move move)
     {
-        (int, int, int) sourceCell = Cells[move.Source.x][move.Source.y];
+        (int, int, int) sourceCell = Cells[move.Source.y][move.Source.x];
         PlayerData attackPlayer = Players[sourceCell.Item1];
         int attackerIndex = sourceCell.Item2;
         CharacterData attacker = attackPlayer.Characters[attackerIndex];
         attackPlayer.CharAttack(attackerIndex);
 
-        (int, int, int) targetCell = Cells[move.Target.x][move.Target.y];
+        (int, int, int) targetCell = Cells[move.Target.y][move.Target.x];
         PlayerData targetPlayer = Players[targetCell.Item1];
         // If target is not Lord
         if (targetCell.Item2 != -1)
@@ -230,23 +228,23 @@ public class GameState
             targetPlayer.CharTakeDmg(attacker.characterStats.damage, targetIndex);
             if (target.CurrentHP <= 0)
             {
-                Cells[move.Target.x][move.Target.y] = (-1, -1, 0); // Target is dead, cell becomes empty
+                Cells[move.Target.y][move.Target.x] = (-1, -1, 0); // Target is dead, cell becomes empty
             } else
             {
-                Cells[move.Target.x][move.Target.y].Item3 = target.CurrentHP; // Change the cell state
+                Cells[move.Target.y][move.Target.x].Item3 = target.CurrentHP; // Change the cell state
             }
         }
         else         // If target is Lord
         {
             targetPlayer.LordHP -= attacker.characterStats.damage;
-            Cells[move.Target.x][move.Target.y].Item3 = targetPlayer.LordHP;
+            Cells[move.Target.y][move.Target.x].Item3 = targetPlayer.LordHP;
             attackPlayer.CharTakeDmg(GameConstants.LordDmg, attackerIndex);
             if (attacker.CurrentHP <= 0)
             {
-                Cells[move.Source.x][move.Source.y] = (-1, -1, 0); // Attacker is dead, cell becomes empty
+                Cells[move.Source.y][move.Source.x] = (-1, -1, 0); // Attacker is dead, cell becomes empty
             } else
             {
-                Cells[move.Source.x][move.Source.y].Item3 = attacker.CurrentHP;
+                Cells[move.Source.y][move.Source.x].Item3 = attacker.CurrentHP;
             }
         }
     }

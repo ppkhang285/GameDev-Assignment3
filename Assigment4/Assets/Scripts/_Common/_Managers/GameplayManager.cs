@@ -81,7 +81,7 @@ public class GameplayManager : MonoBehaviour
                 {
                     Player pl = players[k].GetComponent<Player>();
                     Vector2Int lordLocation = pl.Location;
-                    if (lordLocation.x == i && lordLocation.y == j)
+                    if (lordLocation.x == j && lordLocation.y == i)
                         cells[i][j] = (k, -1, pl.Data.LordHP);
                     else
                         cells[i][j] = (-1, -1, 0);
