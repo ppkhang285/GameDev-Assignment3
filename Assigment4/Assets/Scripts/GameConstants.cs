@@ -19,5 +19,5 @@ public static class GameConstants
     public const int MaxAP = 3;
     public const int MaxCharacter = 5;
     public const int LordHP = 50;
-    public const int LordDmg = 4;
+    public const int LordDmg = 0;
 }

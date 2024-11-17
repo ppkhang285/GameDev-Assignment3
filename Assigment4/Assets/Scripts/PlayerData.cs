@@ -90,8 +90,6 @@ public class PlayerData
     public void ReceiveEnergy(int amount)
     {
         Energy += amount;
-        if (PlayerNo == 0)
-            Debug.Log("After receiving energy: " + Energy.ToString());
     }
 
     public bool IsDead()

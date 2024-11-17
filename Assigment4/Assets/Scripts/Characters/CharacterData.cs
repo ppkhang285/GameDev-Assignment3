@@ -80,7 +80,7 @@ public class CharacterData
     public void TakeDmg(int dmg)
     {
         CurrentHP -= dmg;
-        if (CurrentHP < 0)
+        if (CurrentHP <= 0)
         {
             Die();
         }

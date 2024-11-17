@@ -67,9 +67,9 @@ public class GameplayManager : MonoBehaviour
 
         string level = "Easy";
         if (level == "Easy")
-            AI = new RandomAI(100, 0.0f);
+            AI = new RandomAI(100, 1.0f);
         if (level == "Normal")
-            AI = new MinimaxAI(5, 30, 0.0f, 30.0f);
+            AI = new MinimaxAI(5, 10, 0.0f, 30.0f);
 
         (int, int, int)[][] cells = new (int, int, int)[BoardSize][];
         for (int i = 0; i < BoardSize; i++)
@@ -77,19 +77,23 @@ public class GameplayManager : MonoBehaviour
             cells[i] = new (int, int, int)[BoardSize];
             for (int j = 0; j < BoardSize; j++)
             {
+                cells[i][j] = (-1, -1, 0);
                 for (int k = 0; k < players.Length; k++)
                 {
-                    Player pl = players[k].GetComponent<Player>();
-                    Vector2Int lordLocation = pl.Location;
+                    Vector2Int lordLocation = locations[k];
                     if (lordLocation.x == j && lordLocation.y == i)
-                        cells[i][j] = (k, -1, pl.Data.LordHP);
-                    else
-                        cells[i][j] = (-1, -1, 0);
+                        cells[i][j] = (k, -1, GameConstants.LordHP);
                 }
             }
         }
 
-        gameState = new GameState(1, cells, players.Select(p => p.GetComponent<Player>().Data).ToArray());
+        bool[] defeated = new bool[NumPlayer];
+        for (int i = 0; i < NumPlayer; i++)
+        {
+            defeated[i] = false;
+        }
+
+        gameState = new GameState(1, cells, players.Select(p => p.GetComponent<Player>().Data).ToArray(), defeated);
     }
 
     private void Start()

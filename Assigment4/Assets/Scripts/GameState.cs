@@ -10,12 +10,14 @@ public class GameState
     public int Turn { get; set; } // Current turn in the game
     public (int, int, int)[][] Cells { get; private set; } // Item1 = -1 means empty cell, Item2 = -1 means Lord, first item indicates the player that owns the chess, second item is the type of the chess, third item is its current hp
     public PlayerData[] Players { get; private set; } // list of players 
+    public bool[] Defeated { get; private set; }
 
-    public GameState(int turn, (int, int, int) [][] cells, PlayerData[] players)
+    public GameState(int turn, (int, int, int) [][] cells, PlayerData[] players, bool[] defeated)
     {
         Turn = turn;
         Cells = cells;
         Players = players;
+        Defeated = defeated;
     }
 
     public bool HasLost(int currentPlayer)
@@ -24,6 +26,7 @@ public class GameState
             if (Players[currentPlayer].IsDead())
             {
                 ClearBoard(currentPlayer);
+                Debug.Log("Player " + currentPlayer.ToString() + " lost");
                 return true;
             }
             else
@@ -33,6 +36,7 @@ public class GameState
             if (Players[currentPlayer].LordHP <= 0)
             {
                 ClearBoard(currentPlayer);
+                Debug.Log("Player " + currentPlayer.ToString() + " lost");
                 return true;
             }
             else
@@ -46,11 +50,21 @@ public class GameState
         {
             if (i != currentPlayer)
             {
-                if (!HasLost(i)) return false; 
+                if (!Defeated[i]) return false; 
             }
         }
         return true;
     }
+
+    public void CheckDefeatedPlayer()
+    {
+        for (int i = 0; i < Players.Length; i++)
+        {
+            if (Defeated[i]) continue;
+            if (HasLost(i)) Defeated[i] = true;
+        }
+    }
+
     public void ChangeTurn(int player, int energyAmount)
     {
         if ((Turn - 1 - player) / Players.Length < GameConstants.TurnReceiveEnergy)
@@ -89,9 +103,8 @@ public class GameState
                 CharacterData chessPiece = player.Characters[i];
                 if (!chessPiece.Spawned && chessPiece.characterStats.cost <= player.Energy) // Chess is not spawned and enough energy to spawn
                 {
-                    bool random = UnityEngine.Random.value >= dropChance;
-                    if (random)
-                        moves.Add(new Move(new Vector2Int(currentPlayer, i), spawnLocation, MoveType.Spawn));
+                    Vector2Int spawnLoc = new Vector2Int(spawnLocation.x, spawnLocation.y);
+                    moves.Add(new Move(new Vector2Int(currentPlayer, i), spawnLoc, MoveType.Spawn));
                 }
             }
         }
@@ -129,10 +142,17 @@ public class GameState
                         if (Cells[location.y + k][location.x + j].Item1 == -1) // Cell is empty
                         {
                             Vector2Int target = new Vector2Int(location.x + j, location.y + k);
-                            Move newMove = new Move(location, target, MoveType.CharMove);
-                            bool random = UnityEngine.Random.value >= dropChance;
-                            if (random)
+                            Vector2Int loc = new Vector2Int(location.x, location.y);
+                            Move newMove = new Move(loc, target, MoveType.CharMove);
+                            if (Utils.ManhattanDistance(loc, Players[currentPlayer].LordLocation) > Utils.ManhattanDistance(target, Players[currentPlayer].LordLocation))
+                            {
+                                bool random = UnityEngine.Random.value >= dropChance;
+                                if (random)
+                                    moves.Add(newMove);
+                            } else
+                            {
                                 moves.Add(newMove);
+                            }
                         }
                     }
                 }
@@ -148,10 +168,9 @@ public class GameState
                         if (Cells[location.y + k][location.x + j].Item1 != -1 && Cells[location.y + k][location.x + j].Item1 != currentPlayer) // Cell is not empty and the piece in the cell is of enemy team 
                         {
                             Vector2Int target = new Vector2Int(location.x + j, location.y + k);
-                            Move newMove = new Move(location, target, MoveType.CharAttack);
-                            bool random = UnityEngine.Random.value >= dropChance;
-                            if (random)
-                                moves.Add(newMove);
+                            Vector2Int loc = new Vector2Int(location.x, location.y);
+                            Move newMove = new Move(loc, target, MoveType.CharAttack);                           
+                            moves.Add(newMove);
                         }
                     }
                 }
@@ -172,8 +191,8 @@ public class GameState
             ApplyCharAttack(move);
         else if (move.Type == MoveType.Spawn)
             ApplySpawn(move);
-        else
-            return;
+        else;
+        CheckDefeatedPlayer();
     }
 
     public void ApplyCharMove(Move move)

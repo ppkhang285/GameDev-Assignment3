@@ -12,7 +12,6 @@ public class BattleHandler : MonoBehaviour
     private PlayerTurn[] playerPool;
     private PlayerTurn currentPlayer;
 
-
     public void StartGameLoop()
     {
         Setup();
@@ -46,7 +45,7 @@ public class BattleHandler : MonoBehaviour
                 yield return null;
             }
 
-            Debug.Log("Current Player: " + currentPlayer);
+            //Debug.Log("Current Player: " + currentPlayer);
 
             // Handle the current player's turn
             PlayerType playerType = GameplayManager.Instance.players[System.Array.IndexOf(playerPool, currentPlayer)].GetComponent<Player>().Data.Type;
@@ -62,16 +61,13 @@ public class BattleHandler : MonoBehaviour
 
     private IEnumerator HandleAITurn()
     {
-        Debug.Log(currentPlayer + " is taking their turn.");
+        //Debug.Log(currentPlayer + " is taking their turn.");
         List<Move> sequence = GameplayManager.Instance.AI.GetMove(GameplayManager.Instance.gameState, System.Array.IndexOf(playerPool, currentPlayer));
-        if (currentPlayer == PlayerTurn.Player1Turn)
-        {
-            foreach (Move move in sequence)
-            {
-                if (move.Type != MoveType.Idle) 
-                    Debug.Log("Turn " + GameplayManager.Instance.gameState.Turn.ToString() + ": " + move.ToString());
-            }
-        }
+        //foreach (Move move in sequence)
+        //{
+        //    if (move.Type != MoveType.Idle)
+        //        Debug.Log("Turn " + GameplayManager.Instance.gameState.Turn.ToString() + ": " + move.ToString());
+        //}
         GameplayManager.Instance.ApplyMoveSequence(sequence);
         yield return null;
     }
@@ -88,8 +84,12 @@ public class BattleHandler : MonoBehaviour
 
     public int GetNextPlayer(int currentIdx) // TODO: Change logic later when a player is defeated;
     {
-        
-        return (currentIdx + 1) % playerPool.Length;
+        bool[] defeated = GameplayManager.Instance.gameState.Defeated;
+        for (int i = 1; i < playerPool.Length; i++)
+        {
+            if (!defeated[(currentIdx + i) % playerPool.Length]) return (currentIdx + i) % playerPool.Length;
+        }
+        return currentIdx;
     }
 
     public int GetCurrentPlayer()
@@ -100,7 +100,14 @@ public class BattleHandler : MonoBehaviour
     private void ChangeTurn()
     {
         int currentIdx = GetCurrentPlayer();
-        currentPlayer = playerPool[GetNextPlayer(currentIdx)];
+        int nextIdx = GetNextPlayer(currentIdx);
+        if (nextIdx == currentIdx)
+        {
+            Debug.Log("Player " + nextIdx.ToString() + " has won");
+            currentState = GameplayState.GameOver;
+            return;
+        }
+        currentPlayer = playerPool[nextIdx];
         GameplayManager.Instance.ChangeTurn();
     }
 }
