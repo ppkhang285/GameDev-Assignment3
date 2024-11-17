@@ -58,12 +58,14 @@ public class PlayerData
     {
         CharacterData character = Characters[index];
         character.CharMove(location);
+        AP -= 1;
     }
 
     public void CharAttack(int index)
     {
         CharacterData character = Characters[index];
         character.CharAttack();
+        AP -= 1;
     }
 
     public void CharTakeDmg(int dmg, int index)

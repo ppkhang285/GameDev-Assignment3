@@ -63,6 +63,7 @@ public class GameplayManager : MonoBehaviour
             players[i] = Instantiate(prefab);
             Player player = players[i].GetComponent<Player>();
             player.Initialize(i, i, PlayerType.Human, locations[i]);
+            prefab.transform.position = battleHandler.Spawner.GetWorldPosition(locations[i]);
         }
 
         string level = "Easy";
@@ -151,6 +152,7 @@ public class GameplayManager : MonoBehaviour
         GameObject character = players[player].GetComponent<Player>().characters[charIndex]; // Get the character that needs to move
         bool direction = destination.x > start.x;
         character.GetComponent<Character>().CharMove(direction);
+        character.transform.position = destination;
         // TODO: add moving anim
     }
 
@@ -169,10 +171,11 @@ public class GameplayManager : MonoBehaviour
     public void ApplySpawn(Move move)
     {
         Vector3 destination = battleHandler.Spawner.GetWorldPosition(move.Target); // The position to spawn the character
-        int player = gameState.Cells[move.Source.y][move.Source.x].Item1; // Get the player that does the spawn
-        int charIndex = gameState.Cells[move.Source.y][move.Source.x].Item2;
+        int player = move.Source.x; // Get the player that does the spawn
+        int charIndex = move.Source.y;
         GameObject character = players[player].GetComponent<Player>().characters[charIndex]; // Get the character that needs to spawn
-
+        character.transform.position = destination;
+        character.GetComponent<SpriteRenderer>().enabled = true;
         // TODO: add spawn anim
     }
 

@@ -67,7 +67,7 @@ public class GameState
 
     public void ChangeTurn(int player, int energyAmount)
     {
-        if ((Turn - 1 - player) / Players.Length < GameConstants.TurnReceiveEnergy)
+        if ((Turn - 2 - player) / Players.Length < GameConstants.TurnReceiveEnergy)
             Players[player].ReceiveEnergy(energyAmount);
         Players[player].RestoreAP();
     }
