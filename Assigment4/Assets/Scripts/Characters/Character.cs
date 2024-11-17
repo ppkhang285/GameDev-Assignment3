@@ -26,12 +26,12 @@ public class Character : MonoBehaviour
         
     }
 
-    public void CharMove()
+    public void CharMove(bool direction)
     {
         // The character moves visually
     }
 
-    public void CharAttack()
+    public void CharAttack(bool direction)
     {
         // The character attacks visually
     }
