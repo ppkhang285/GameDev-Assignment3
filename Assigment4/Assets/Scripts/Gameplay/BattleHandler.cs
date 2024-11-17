@@ -70,7 +70,7 @@ public class BattleHandler : MonoBehaviour
     private IEnumerator HandlePlayerTurn()
     {
         // Simulate waiting for the player's actions (replace with real input logic)
-        // Debug.Log(currentPlayer + " is taking their turn.");
+        Debug.Log(currentPlayer + " is taking their turn.");
         bool turnEnded = false;
 
         PlayerData currentPlayerData = GameplayManager.Instance.gameState.Players[GetCurrentPlayer()];
@@ -108,7 +108,7 @@ public class BattleHandler : MonoBehaviour
                             Vector2Int prevCell = spawnCell.Value;
                             spawnCell = null;
                             Move NewMove = new Move(new Vector2Int(GetCurrentPlayer(), keyval), prevCell, MoveType.Spawn);
-                            Debug.Log("Spawn action: " + NewMove.ToString());
+                            // Debug.Log("Spawn action: " + NewMove.ToString());
                             GameplayManager.Instance.ApplyMove(NewMove);
                         }
                     }
@@ -121,7 +121,7 @@ public class BattleHandler : MonoBehaviour
                 int curPlayer = GetCurrentPlayer();
                 Vector2Int clickedCell = Spawner.GetClickedCell();
                 if (clickedCell.x == -1 || clickedCell.y == -1) yield break; // Clicked outside the board will cancel everything
-                Debug.Log($"Clicked cell: Row {clickedCell.y}, Column {clickedCell.x}");
+                // Debug.Log($"Clicked cell: Row {clickedCell.y}, Column {clickedCell.x}");
                 (int,int,int) cell = GameplayManager.Instance.gameState.Cells[clickedCell.y][clickedCell.x];
                 if (cell.Item1 != -1 ){
                     // None-empty cell:
@@ -131,22 +131,22 @@ public class BattleHandler : MonoBehaviour
                     // Handle select own unit
                     if (cell.Item1 == curPlayer){
                         if (cell.Item2 == -1){
-                            Debug.Log("Selected Lord at: Row " + clickedCell.y + ", Column " + clickedCell.x);
+                            // Debug.Log("Selected Lord at: Row " + clickedCell.y + ", Column " + clickedCell.x);
                         }
                         else {
                             sellectedCell = clickedCell;
-                            Debug.Log($"Selected unit at: Row {sellectedCell.Value.y}, Column {sellectedCell.Value.x}");
+                            // Debug.Log($"Selected unit at: Row {sellectedCell.Value.y}, Column {sellectedCell.Value.x}");
                         }
                     } else if (cell.Item1 == -1){
                         // Handle spawn action
                         foreach( Vector2Int spawnLocation in currentPlayerData.SpawnLocations){
                             if (clickedCell == spawnLocation){
                                 spawnCell = clickedCell;
-                                Debug.Log($"Selected spawn location at: Row {spawnCell.Value.y}, Column {spawnCell.Value.x}");
+                                // Debug.Log($"Selected spawn location at: Row {spawnCell.Value.y}, Column {spawnCell.Value.x}");
                             }
                         }
                     } else {
-                        Debug.Log("Illegal action: Select enemy unit");
+                        // Debug.Log("Illegal action: Select enemy unit");
                     }
                 } else if (sellectedCell.HasValue) {
                     // Clear buffered click
@@ -158,17 +158,17 @@ public class BattleHandler : MonoBehaviour
                         // Move action
                         int Distannce= Utils.ManhattanDistance(prevCell, clickedCell);
                         if (Distannce > CharData.characterStats.movementRange){
-                            Debug.Log("Illegal move: Out of range");
+                            // Debug.Log("Illegal move: Out of range");
                         } else {
                             if (CharData.AP > 0 && AP > 0)
                             {
                                 Move NewMove = new Move(prevCell, clickedCell, MoveType.CharMove);
-                                Debug.Log("Move action: " + NewMove.ToString());
+                                // Debug.Log("Move action: " + NewMove.ToString());
                                 GameplayManager.Instance.ApplyMove(NewMove);
                                 AP -= 1;
                             } else
                             {
-                                Debug.Log("Out of action points");
+                                // Debug.Log("Out of action points");
                             }
                         }
                     } else if (cell.Item1 != curPlayer){
@@ -180,19 +180,18 @@ public class BattleHandler : MonoBehaviour
                             if (CharData.AP > 0 && AP > 0)
                             {
                                 Move NewMove = new Move(prevCell, clickedCell, MoveType.CharAttack);
-                                Debug.Log("Attack action: " + NewMove.ToString());
+                                // Debug.Log("Attack action: " + NewMove.ToString());
                                 GameplayManager.Instance.ApplyMove(NewMove);
                                 AP -= 1;
                             } else
                             {
-                                Debug.Log("Out of action points");
+                                // Debug.Log("Out of action points");
                             }
                         }
                     } else {
                         // Select another unit 
                         sellectedCell = clickedCell;
-                        mappedChar = cell.Item2;
-                        Debug.Log($"Selected another unit at: Row {sellectedCell.Value.y}, Column {sellectedCell.Value.x}");
+                        // Debug.Log($"Selected another unit at: Row {sellectedCell.Value.y}, Column {sellectedCell.Value.x}");
                     }
                 }
  
