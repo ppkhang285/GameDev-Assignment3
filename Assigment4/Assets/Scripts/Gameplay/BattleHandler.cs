@@ -74,6 +74,7 @@ public class BattleHandler : MonoBehaviour
         List<Move> sequence = GameplayManager.Instance.AI.GetMove(GameplayManager.Instance.gameState, System.Array.IndexOf(playerPool, currentPlayer));
         bool turnEnded = false;
 
+        Vector2Int? sellectedCell= null; // Set nulllabe state
         while (!turnEnded)
         {
             if (Input.GetKeyDown(KeyCode.Return)) // TODO: check "End Turn" button click
@@ -81,12 +82,25 @@ public class BattleHandler : MonoBehaviour
                 Debug.Log("Player ended their turn.");
                 GameplayManager.Instance.ApplyMoveSequence(sequence);
                 turnEnded = true;
+                sellectedCell = null; // Reset buffer for next player turn/action 
             }
 
             if (Input.GetMouseButtonDown(0)) // Left mouse click
             {
                 Vector2Int clickedCell = Spawner.GetClickedCell();
                 Debug.Log($"Clicked cell: Row {clickedCell.y}, Column {clickedCell.x}");
+                if (sellectedCell == null){
+                    // Handle select own unit
+                    (int,int,int) cell = GameplayManager.Instance.gameState.Cells[clickedCell.y][clickedCell.x];
+                    if (cell.Item1 == (int)currentPlayer){
+                        sellectedCell = clickedCell;
+                        Debug.Log($"Selected cell: Row {sellectedCell.Value.y}, Column {sellectedCell.Value.x}");
+                    }
+                    Debug.Log("Selecte unit belonged to player " + cell.Item1);
+                } else {
+                    // Move newMove = new Move(bufferCell, clickedCell, )
+                }
+
             }
 
             // Wait until the next frame to check again
