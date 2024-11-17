@@ -51,7 +51,8 @@ public class LobbyController : MonoBehaviourPunCallbacks
         float labelWidth = 85 * scale;
         float textFieldWidth = 250 * scale;
         float buttonWidth = 125 * scale;
-
+        GUILayout.BeginVertical();
+        GUILayout.Space(10);
         GUILayout.BeginHorizontal();
         GUILayout.Label("Trạng thái " + PhotonNetwork.NetworkClientState);
 
@@ -59,7 +60,7 @@ public class LobbyController : MonoBehaviourPunCallbacks
         {
             GUI.enabled = false;
         }
-
+        
         GUILayout.FlexibleSpace();
 
         roomName = GUILayout.TextField(roomName, GUILayout.Width(textFieldWidth));
@@ -103,12 +104,15 @@ public class LobbyController : MonoBehaviourPunCallbacks
             }
         }
         GUILayout.EndScrollView();
-
+        GUILayout.BeginVertical();
+        GUILayout.Space(40);
         GUILayout.BeginHorizontal();
-        GUILayout.Label("Player Name", GUILayout.Width(labelWidth));
+        GUILayout.Label("Player Name", GUILayout.Width(labelWidth + 100));
         playerName = GUILayout.TextField(playerName, GUILayout.Width(textFieldWidth));
         GUILayout.FlexibleSpace();
         GUILayout.EndHorizontal();
+        GUILayout.EndVertical();
+        GUILayout.EndVertical();
 
         if (isJoining)
         {
