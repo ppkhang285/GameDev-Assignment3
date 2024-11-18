@@ -22,9 +22,6 @@ public class Player : MonoBehaviour
             characters[i] = Instantiate(prefab);
             Character character = characters[i].GetComponent<Character>();
             character.Initialize(assetNo.ToString(), playerNo);
-            //SpriteRenderer renderer = prefab.GetComponent<SpriteRenderer>();
-            //renderer.sprite = character.Data.characterStats.sprite;
-            //renderer.enabled = false;
         }
         Location = location;
 

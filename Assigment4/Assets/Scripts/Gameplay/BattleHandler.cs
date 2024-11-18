@@ -147,7 +147,7 @@ public class BattleHandler : MonoBehaviour
                             Vector2Int prevCell = spawnCell.Value;
                             spawnCell = null;
                             Move NewMove = new Move(new Vector2Int(GetCurrentPlayer(), keyval), prevCell, MoveType.Spawn);
-                            // Debug.Log("Spawn action: " + NewMove.ToString());
+                            //Debug.Log("Spawn action: " + NewMove.ToString());
                             GameplayManager.Instance.ApplyMove(NewMove);
                         }
                     }

@@ -13,7 +13,7 @@ public class CharacterData
     public int CurrentHP
     {
         get { return _hp; }
-        set { if (value <= 0) _hp = 0; else _hp = 1; }
+        set { if (value <= 0) _hp = 0; else _hp = value; }
     }
 
     private int _ap;
