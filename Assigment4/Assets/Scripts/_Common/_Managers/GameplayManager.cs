@@ -62,7 +62,7 @@ public class GameplayManager : MonoBehaviour
             GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Lords/Lord_" + i.ToString() + ".prefab");
             players[i] = Instantiate(prefab);
             Player player = players[i].GetComponent<Player>();
-            player.Initialize(i, i, PlayerType.Human, locations[i]);
+            player.Initialize(i, i, PlayerType.AI, locations[i]);
             prefab.transform.position = battleHandler.Spawner.GetWorldPosition(locations[i]);
         }
 
@@ -70,7 +70,7 @@ public class GameplayManager : MonoBehaviour
         if (level == "Easy")
             AI = new RandomAI(100, 1.0f);
         if (level == "Normal")
-            AI = new MinimaxAI(5, 10, 0.0f, 30.0f);
+            AI = new MinimaxAI(3, 10, 0.0f, 30.0f);
 
         (int, int, int)[][] cells = new (int, int, int)[BoardSize][];
         for (int i = 0; i < BoardSize; i++)
@@ -116,20 +116,7 @@ public class GameplayManager : MonoBehaviour
     {
         return battleHandler.GetNextPlayer(currentPlayer);
     }
-    
-    public void ApplyMoveSequence(List<Move> moves) // Actually change the current game state
-    {
 
-        // Move visually first then logically
-        foreach (Move move in moves)
-        {
-            ApplyMove(move);
-        }
-        foreach (Move move in moves)
-        {
-            gameState.ApplyMove(move);
-        }
-    }
 
     public void ApplyMove(Move move)
     {

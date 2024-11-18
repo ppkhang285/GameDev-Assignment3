@@ -61,9 +61,14 @@ public class BattleHandler : MonoBehaviour
 
     private IEnumerator HandleAITurn()
     {
-        //Debug.Log(currentPlayer + " is taking their turn.");
+        Debug.Log(currentPlayer + " is taking their turn.");
         List<Move> sequence = GameplayManager.Instance.AI.GetMove(GameplayManager.Instance.gameState, System.Array.IndexOf(playerPool, currentPlayer));
-        GameplayManager.Instance.ApplyMoveSequence(sequence);
+        foreach (Move move in sequence)
+        {
+            // Debug.Log(move.ToString());
+            GameplayManager.Instance.ApplyMove(move);
+        }
+
         yield return null;
     }
 
