@@ -10,8 +10,8 @@ public class NetworkBattleHandler : BattleHandler
     public bool IsLocalPlayerTurn()
     {
         int currentIdx = GetCurrentPlayer();
-        int localPlayerIdx = PhotonNetwork.LocalPlayer.ActorNumber - 1 ; // Assuming the actor number matches player order
-        Debug.LogError("localplayerIdx:"+localPlayerIdx+"\n"+"currentidx:"+currentIdx);
+        int localPlayerIdx = PhotonNetwork.LocalPlayer.ActorNumber - 1; // Assuming the actor number matches player order
+        // Debug.LogError("localplayerIdx:"+localPlayerIdx+"\n"+"currentidx:"+currentIdx);
 
         return currentIdx == localPlayerIdx;
     }
@@ -20,7 +20,7 @@ public class NetworkBattleHandler : BattleHandler
         Setup();
         // if (PhotonNetwork.IsMasterClient) {
             StartCoroutine(GameLoop());
-            Debug.LogError("start game loop for masterclient");
+            Debug.LogError("start game loop");
         // }
     }
     protected override  void OnEndTurnButtonClick()
@@ -30,12 +30,13 @@ public class NetworkBattleHandler : BattleHandler
             photonView.RPC("RPC_EndTurn", RpcTarget.MasterClient);
         }
         else{
+            Debug.LogError("Turn end requested by a masterclient.");
             turnEndRequested=true;
         }
     }
     protected override IEnumerator GameLoop()
     {
-        Debug.LogError("gameloop started on masterclient");
+        Debug.LogError("gameloop started");
 
         while (currentState != GameplayState.GameOver)
         {
@@ -104,21 +105,13 @@ public class NetworkBattleHandler : BattleHandler
     // Handle spawn action and move actions from the network perspective
     protected override IEnumerator HandlePlayerTurn()
     {
-        if (PhotonNetwork.IsMasterClient)
-        {
-            // Allow the current player to act.
-            Debug.Log($"{currentPlayer} is taking their turn");
+        // Allow the current player to act.
+        Debug.Log($"{currentPlayer} is taking their turn");
 
-            // Add network-related logic to sync actions
-            yield return base.HandlePlayerTurn();
-        }
-        else
-        {
-            // If not the master client, wait for the turn to be finalized by master client
-            yield return null;
-        }
+        // Add network-related logic to sync actions
+        yield return base.HandlePlayerTurn();
+
     }
 
-    // Override to handle network initialization (on player joined, etc.)
 
 }
