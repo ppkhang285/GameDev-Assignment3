@@ -59,7 +59,8 @@ public class GameplayManager : MonoBehaviour
         }
         for (int i = 0; i < NumPlayer; i++)
         {
-            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Lords/Lord_" + i.ToString() + ".prefab");
+            // GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Lords/Lord_" + i.ToString() + ".prefab");
+            GameObject prefab = Resources.Load<GameObject>("Lords/Lord_" + i.ToString());
             players[i] = Instantiate(prefab);
             Player player = players[i].GetComponent<Player>();
             player.Initialize(i, i, PlayerType.Human, locations[i]);
