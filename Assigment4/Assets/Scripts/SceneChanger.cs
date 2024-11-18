@@ -5,11 +5,11 @@ using UnityEngine.SceneManagement;
 public class SceneChanger : MonoBehaviour
 {
 
-    private string level = "Easy"; 
-    private int deckNo = 0;
+    public static string level; 
+    public static int deckNo;
 
-    private int AI = 1;
-    private bool isPVP = false;
+    public static int NoPlayer; // No of enemy
+    public static bool isPVP;
 
 
     public void LoadScene(string sceneName)
@@ -31,15 +31,15 @@ public class SceneChanger : MonoBehaviour
     }
 
     public void StartPVE(){
-        GameplayManager.isPVP = isPVP;
+        GameplayManager.isPVP = false;
         GameplayManager.ExtChosenDeck = deckNo;
         GameplayManager.ExtLevel = level;
-        GameplayManager.ExtNumberPlayer = AI + 1;
+        GameplayManager.ExtNumberPlayer = NoPlayer + 1;    
         MoveToGameplay();
     }
 
-    public void SetAINumber(int No){
-        AI = No;
+    public void SetNoNumber(int No) {
+        NoPlayer = No;
     }
 
     public void MoveToGameplay() {
