@@ -17,6 +17,7 @@ public class NetworkBattleHandler : BattleHandler
     }
     public override void StartGameLoop()
     {
+        endTurnButton.gameObject.SetActive(false);
         Setup();
         // if (PhotonNetwork.IsMasterClient) {
             StartCoroutine(GameLoop());
@@ -137,9 +138,7 @@ public class NetworkBattleHandler : BattleHandler
                             // Clear buffered click
                             Vector2Int prevCell = spawnCell.Value;
                             spawnCell = null;
-                            Move NewMove = new Move(new Vector2Int(GetCurrentPlayer(), keyval), prevCell, MoveType.Spawn);
-                            //Debug.Log("Spawn action: " + NewMove.ToString());
-                            GameplayManager.Instance.ApplyMove(NewMove);
+                            photonView.RPC("RPC_SpawnCharacter", RpcTarget.All, GetCurrentPlayer(), keyval, prevCell.x, prevCell.y);
                         }
                     }
                     
@@ -199,9 +198,9 @@ public class NetworkBattleHandler : BattleHandler
                         } else {
                             if (CharData.AP > 0 && AP > 0)
                             {
-                                Move NewMove = new Move(prevCell, clickedCell, MoveType.CharMove);
+                                
                                 // Debug.Log("Move action: " + NewMove.ToString());
-                                GameplayManager.Instance.ApplyMove(NewMove);
+                                photonView.RPC("RPC_MoveCharacter", RpcTarget.All, GetCurrentPlayer(), prevCell.x,prevCell.y, clickedCell.x, clickedCell.y);
                                 AP -= 1;
                             } else
                             {
@@ -217,8 +216,9 @@ public class NetworkBattleHandler : BattleHandler
                             if (CharData.AP > 0 && AP > 0)
                             {
                                 Move NewMove = new Move(prevCell, clickedCell, MoveType.CharAttack);
+                                photonView.RPC("RPC_CharAttack", RpcTarget.All, GetCurrentPlayer(), prevCell.x,prevCell.y, clickedCell.x, clickedCell.y);
+
                                 // Debug.Log("Attack action: " + NewMove.ToString());
-                                GameplayManager.Instance.ApplyMove(NewMove);
                                 AP -= 1;
                             } else
                             {
@@ -244,5 +244,41 @@ public class NetworkBattleHandler : BattleHandler
         }
         
     }
+    [PunRPC]
+
+    public void RPC_SpawnCharacter(int playerIdx, int characterIdx, int spawnX, int spawnY)
+    {
+        // Convert the x and y values back to Vector2Int
+        Vector2Int spawnLocation = new Vector2Int(spawnX, spawnY);
+        Move NewMove = new Move(new Vector2Int(GetCurrentPlayer(), characterIdx), spawnLocation, MoveType.Spawn);
+        
+        GameplayManager.Instance.ApplyMove(NewMove);
+        // You may also want to add some visual effect here to show the character has spawned
+
+        Debug.Log($"Player {playerIdx} spawned character {characterIdx} at {spawnLocation}");
+    }
+    [PunRPC]
+
+    public void RPC_MoveCharacter(int playerIdx, int preX,int preY, int clickX, int clickY)
+    {
+        // Convert the x and y values back to Vector2Int
+        Move NewMove = new Move(new Vector2Int(preX,preY), new Vector2Int(clickX,clickY), MoveType.CharMove);
+        
+        GameplayManager.Instance.ApplyMove(NewMove);
+        // You may also want to add some visual effect here to show the character has spawned
+
+        Debug.Log($"Player {playerIdx} move characte");
+    }
+    public void RPC_CharAttack(int playerIdx, int preX,int preY, int clickX, int clickY)
+    {
+        // Convert the x and y values back to Vector2Int
+        Move NewMove = new Move(new Vector2Int(preX,preY), new Vector2Int(clickX,clickY), MoveType.CharMove);
+        
+        GameplayManager.Instance.ApplyMove(NewMove);
+        // You may also want to add some visual effect here to show the character has spawned
+
+        Debug.Log($"Player {playerIdx} attack characte");
+    }
+
 
 }
