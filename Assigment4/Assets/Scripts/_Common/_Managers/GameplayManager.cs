@@ -10,12 +10,12 @@ public class GameplayManager : MonoBehaviour
     public BattleHandler battleHandler;
     public static GameplayManager Instance { get; private set; }
     // Adding Player Info through this
-    public static bool isPVP = false;
-    public static int ExtNumberPlayer = 2;
-    public static int ExtChosenDeck;
+    public static bool isPVP {get; set;}
+    public static int ExtNumberPlayer {get; set;}
+    public static int ExtChosenDeck {get; set;}
     
 
-    public static string ExtLevel = "Easy"; 
+    public static string ExtLevel; 
     public int DeckSize { get; private set; }
     public int BoardSize { get; private set; }
     public GameObject[] players;
@@ -43,7 +43,6 @@ public class GameplayManager : MonoBehaviour
         Vector2Int[] locations = new Vector2Int[ExtNumberPlayer];
 
         SelectedGameOverCanvas = "";
-
         if (ExtNumberPlayer < 2 || ExtNumberPlayer > 4)
         {
             throw new System.Exception("Invalid number of players");
