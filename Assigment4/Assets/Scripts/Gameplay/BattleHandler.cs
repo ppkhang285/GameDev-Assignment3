@@ -126,14 +126,6 @@ public class BattleHandler : MonoBehaviour
 
         while (!turnEndRequested)
         {
-
-            //if (Input.GetKeyDown(KeyCode.Return)) // TODO: check "End Turn" button click
-            //{
-            //    Debug.Log("Player ended their turn.");
-            //    turnEnded = true;
-            //    sellectedCell = null; // Reset buffer for next player turn/action 
-            //}
-
             // Handling spawn action (require valid spawn key to unlock)
             for (int keyval = 0; keyval <= 9; keyval++){
                 KeyCode key = keyval + KeyCode.Alpha0;
@@ -172,17 +164,22 @@ public class BattleHandler : MonoBehaviour
                 (int,int,int) cell = GameplayManager.Instance.gameState.Cells[clickedCell.y][clickedCell.x];
                 if (cell.Item1 != -1 ){
                     // None-empty cell:
-                    // TODO: display unit info
                 }
                 if (sellectedCell == null && spawnCell == null){
                     // Handle select own unit
                     if (cell.Item1 == curPlayer){
                         if (cell.Item2 == -1){
                             // Debug.Log("Selected Lord at: Row " + clickedCell.y + ", Column " + clickedCell.x);
+                            // TODO: display Lord stats
                         }
                         else {
                             sellectedCell = clickedCell;
                             // Debug.Log($"Selected unit at: Row {sellectedCell.Value.y}, Column {sellectedCell.Value.x}");
+
+                            // TODO: display unit stats
+                            CharacterData data = GameplayManager.Instance.gameState.Players[cell.Item1].Characters[cell.Item2];
+                            CharacterStats stats = data.characterStats; // all the base stats are in here, display them
+                            
                         }
                     } else if (cell.Item1 == -1){
                         // Handle spawn action
@@ -190,6 +187,8 @@ public class BattleHandler : MonoBehaviour
                             if (clickedCell == spawnLocation){
                                 spawnCell = clickedCell;
                                 // Debug.Log($"Selected spawn location at: Row {spawnCell.Value.y}, Column {spawnCell.Value.x}");
+
+                                // TODO: popup for choosing character to spawn
                             }
                         }
                     } else {
@@ -215,7 +214,7 @@ public class BattleHandler : MonoBehaviour
                                 AP -= 1;
                             } else
                             {
-                                Debug.Log("Out of action points");
+                                // Debug.Log("Out of action points");
                             }
                         }
                     } else if (cell.Item1 != curPlayer){
@@ -232,25 +231,30 @@ public class BattleHandler : MonoBehaviour
                                 AP -= 1;
                             } else
                             {
-                                Debug.Log("Out of action points");
+                                // Debug.Log("Out of action points");
                             }
                         }
                     } else {
                         // Select another unit 
                         sellectedCell = clickedCell;
                         // Debug.Log($"Selected another unit at: Row {sellectedCell.Value.y}, Column {sellectedCell.Value.x}");
+
+                        // TODO: display unit info
+                        CharacterData data = GameplayManager.Instance.gameState.Players[cell.Item1].Characters[cell.Item2];
+                        CharacterStats stats = data.characterStats; // all the base stats are in here, display them
                     }
                 }
  
             }
 
             // Wait until the next frame to check again
+            
             yield return null;
         }
         
     }
 
-    public int GetNextPlayer(int currentIdx) // TODO: Change logic later when a player is defeated;
+    public int GetNextPlayer(int currentIdx)
     {
         bool[] defeated = GameplayManager.Instance.gameState.Defeated;
         for (int i = 1; i < playerPool.Length; i++)
