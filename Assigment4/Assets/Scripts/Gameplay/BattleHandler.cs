@@ -13,6 +13,12 @@ public class BattleHandler : MonoBehaviour
     private PlayerTurn[] playerPool;
     private PlayerTurn currentPlayer;
 
+    //Game Object for menu
+    public GameObject playerName;
+    public GameObject playerHP;
+    public GameObject playerAttackRange;
+    public GameObject playerMovementRange;
+
     public Button endTurnButton;
     private bool turnEndRequested = false;
 
@@ -171,6 +177,7 @@ public class BattleHandler : MonoBehaviour
                         if (cell.Item2 == -1){
                             // Debug.Log("Selected Lord at: Row " + clickedCell.y + ", Column " + clickedCell.x);
                             // TODO: display Lord stats
+                            
                         }
                         else {
                             sellectedCell = clickedCell;
@@ -179,7 +186,11 @@ public class BattleHandler : MonoBehaviour
                             // TODO: display unit stats
                             CharacterData data = GameplayManager.Instance.gameState.Players[cell.Item1].Characters[cell.Item2];
                             CharacterStats stats = data.characterStats; // all the base stats are in here, display them
-                            
+                            playerName.GetComponent<Text>().text = stats.name;
+                            playerHP.GetComponent<Text>().text = "HP: " + stats.hp;
+                            playerAttackRange.GetComponent<Text>().text = "Attack Range: " + stats.attackRange;
+                            playerMovementRange.GetComponent<Text>().text = "Movement Range: " + stats.movementRange;
+
                         }
                     } else if (cell.Item1 == -1){
                         // Handle spawn action
@@ -189,6 +200,10 @@ public class BattleHandler : MonoBehaviour
                                 // Debug.Log($"Selected spawn location at: Row {spawnCell.Value.y}, Column {spawnCell.Value.x}");
 
                                 // TODO: popup for choosing character to spawn
+                                playerName.SetActive(true);
+                                playerHP.SetActive(true);
+                                playerAttackRange.SetActive(true);
+                                playerMovementRange.SetActive(true);
                             }
                         }
                     } else {
@@ -242,6 +257,10 @@ public class BattleHandler : MonoBehaviour
                         // TODO: display unit info
                         CharacterData data = GameplayManager.Instance.gameState.Players[cell.Item1].Characters[cell.Item2];
                         CharacterStats stats = data.characterStats; // all the base stats are in here, display them
+                        playerName.GetComponent<Text>().text = stats.name;
+                        playerHP.GetComponent<Text>().text = "HP: " + stats.hp;
+                        playerAttackRange.GetComponent<Text>().text = "Attack Range: " + stats.attackRange;
+                        playerMovementRange.GetComponent<Text>().text = "Movement Range: " + stats.movementRange;
                     }
                 }
  
