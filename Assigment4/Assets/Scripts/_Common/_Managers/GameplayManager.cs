@@ -19,7 +19,6 @@ public class GameplayManager : MonoBehaviour
     public int DeckSize { get; private set; }
     public int BoardSize { get; private set; }
     public GameObject[] players;
-    //private Character [][] pieces;
     public GameState gameState;
     //private bool[] defeated;
     // public const int MyPlayer = 0;
@@ -156,7 +155,6 @@ public class GameplayManager : MonoBehaviour
         bool direction = destination.x > start.x;
         character.GetComponent<Character>().CharMove(direction);
         character.transform.position = destination;
-        // TODO: add moving anim
     }
 
     public void ApplyCharAttack(Move move)
@@ -179,7 +177,6 @@ public class GameplayManager : MonoBehaviour
                 targetCharacter.GetComponent<SpriteRenderer>().enabled = false;
             }
         }
-        // TODO: add attacking anim
     }
 
     public void ApplySpawn(Move move)
@@ -190,7 +187,6 @@ public class GameplayManager : MonoBehaviour
         GameObject character = players[player].GetComponent<Player>().characters[charIndex]; // Get the character that needs to spawn
         character.transform.position = destination;
         character.GetComponent<SpriteRenderer>().enabled = true;
-        // TODO: add spawn anim
     }
 
 

@@ -186,23 +186,24 @@ public class BattleHandler : MonoBehaviour
             {
                 int curPlayer = GetCurrentPlayer();
                 Vector2Int clickedCell = Spawner.GetClickedCell();
-                if (clickedCell.x == -1 || clickedCell.y == -1) yield break;
-                (int,int,int) cell = GameplayManager.Instance.gameState.Cells[clickedCell.y][clickedCell.x];
-                if (cell.Item1 != -1 ){
-                    // None-empty cell:
+                if (clickedCell.x == -1 || clickedCell.y == -1)
+                {
+                    DisplayCharaterInfo(false);
+                    yield break;
                 }
+                (int,int,int) cell = GameplayManager.Instance.gameState.Cells[clickedCell.y][clickedCell.x];
                 if (sellectedCell == null && spawnCell == null){
                     // Handle select own unit
                     if (cell.Item1 == curPlayer){
                         if (cell.Item2 == -1){
                             // TODO: display Lord stats
-                            SetCharacterInfo(GameConstants.LordDmg, GameConstants.LordHP, -1, 0);
+                            SetCharacterInfo(GameConstants.LordHP, GameConstants.LordDmg, -1, 0);
                             DisplayCharaterInfo(true);
                         }
                         else {
                             sellectedCell = clickedCell;
                             CharacterData data = GameplayManager.Instance.gameState.Players[cell.Item1].Characters[cell.Item2];
-                            CharacterStats stats = data.characterStats; // all the base stats are in here, display them
+                            CharacterStats stats = data.characterStats; 
                             SetCharacterInfo(stats.hp, stats.damage, stats.attackRange, stats.movementRange);
                             DisplayCharaterInfo(true);
 
@@ -218,8 +219,19 @@ public class BattleHandler : MonoBehaviour
                             }
                         }
                     } else {
-                        // Debug.Log("Illegal action: Select enemy unit");
-                        DisplayCharaterInfo(false);
+                        if (cell.Item2 == -1)
+                        {
+                            // TODO: display Lord stats
+                            SetCharacterInfo(GameConstants.LordHP, GameConstants.LordDmg, -1, 0);
+                            DisplayCharaterInfo(true);
+                        }
+                        else
+                        {
+                            CharacterData data = GameplayManager.Instance.gameState.Players[cell.Item1].Characters[cell.Item2];
+                            CharacterStats stats = data.characterStats; 
+                            SetCharacterInfo(stats.hp, stats.damage, stats.attackRange, stats.movementRange);
+                            DisplayCharaterInfo(true);
+                        }
                     }
                 } else if (sellectedCell.HasValue) {
                     Vector2Int prevCell= sellectedCell.Value;
@@ -254,7 +266,7 @@ public class BattleHandler : MonoBehaviour
                     } else {
                         sellectedCell = clickedCell;
                         CharacterData data = GameplayManager.Instance.gameState.Players[cell.Item1].Characters[cell.Item2];
-                        CharacterStats stats = data.characterStats; // all the base stats are in here, display them
+                        CharacterStats stats = data.characterStats; 
                         SetCharacterInfo(stats.hp, stats.damage, stats.attackRange, stats.movementRange);
                         DisplayCharaterInfo(true);
                     }
