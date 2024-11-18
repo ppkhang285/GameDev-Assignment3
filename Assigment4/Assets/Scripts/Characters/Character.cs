@@ -15,7 +15,8 @@ public class Character : MonoBehaviour
     private Animator animator;
     public void Initialize(string name, int team)
     {
-        CharacterStats characterStats = AssetDatabase.LoadAssetAtPath<CharacterStats>("Assets/Scripts/Characters/Stats/" + name + ".asset");
+        // CharacterStats characterStats = AssetDatabase.LoadAssetAtPath<CharacterStats>("Assets/Scripts/Characters/Stats/" + name + ".asset");
+        CharacterStats characterStats = Resources.Load<CharacterStats>("Stats/" + name);
         Data = new CharacterData(characterStats, team);
     }
     // Start is called before the first frame updates

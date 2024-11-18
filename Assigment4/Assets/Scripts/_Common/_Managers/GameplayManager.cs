@@ -59,7 +59,8 @@ public class GameplayManager : MonoBehaviour
         }
         for (int i = 0; i < NumPlayer; i++)
         {
-            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Lords/Lord_" + i.ToString() + ".prefab");
+            // GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Lords/Lord_" + i.ToString() + ".prefab");
+            GameObject prefab = Resources.Load<GameObject>("Lords/Lord_" + i.ToString());
             players[i] = Instantiate(prefab);
             Player player = players[i].GetComponent<Player>();
             player.Initialize(i, i, PlayerType.Human, locations[i]);
@@ -152,6 +153,17 @@ public class GameplayManager : MonoBehaviour
         GameObject character = players[player].GetComponent<Player>().characters[charIndex]; // Get the character that needs to attack
         bool direction = destination.x > start.x;
         character.GetComponent<Character>().CharAttack(direction);
+
+        int targetPlayer = gameState.Cells[move.Target.y][move.Target.x].Item1; // Get the player that receives the attack
+        int targetIndex = gameState.Cells[move.Target.y][move.Target.x].Item2;
+        if (targetIndex != -1)
+        {
+            GameObject targetCharacter = players[targetPlayer].GetComponent<Player>().characters[targetIndex]; // Get the character that receives the attack
+            if (targetCharacter.GetComponent<Character>().Data.CurrentHP <= character.GetComponent<Character>().Data.characterStats.damage)
+            {
+                targetCharacter.GetComponent<SpriteRenderer>().enabled = false;
+            }
+        }
         // TODO: add attacking anim
     }
 
