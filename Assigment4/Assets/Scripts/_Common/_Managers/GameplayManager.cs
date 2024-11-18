@@ -79,7 +79,7 @@ public class GameplayManager : MonoBehaviour
                     else
                         player.Initialize(i, 1, PlayerType.AI, locations[i]);
                 }
-                prefab.transform.position = battleHandler.Spawner.GetWorldPosition(locations[i]);
+                players[i].transform.position = battleHandler.Spawner.GetWorldPosition(locations[i]);
             }
         }
 
