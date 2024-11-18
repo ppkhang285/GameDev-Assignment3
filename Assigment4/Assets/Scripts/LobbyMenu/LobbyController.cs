@@ -73,7 +73,7 @@ public class LobbyController : MonoBehaviourPunCallbacks
                 {
                     IsOpen = true,
                     IsVisible = true,
-                    MaxPlayers = MAX_PLAYER / Max_PLAYER_ROOM
+                    MaxPlayers = MAX_PLAYER 
                 };
                 PhotonNetwork.JoinOrCreateRoom(roomName, option, TypedLobby.Default);
             }

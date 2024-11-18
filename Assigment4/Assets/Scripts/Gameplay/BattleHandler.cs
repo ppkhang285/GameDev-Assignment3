@@ -1,22 +1,23 @@
 using System.Collections;
 using System.Collections.Generic;
+using Photon.Pun;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class BattleHandler : MonoBehaviour
+public class BattleHandler : MonoBehaviourPunCallbacks
 {
     public BoardSpawner Spawner;
-    private enum GameplayState { Start, Playing, GameOver };
-    private enum PlayerTurn { Player1Turn, Player2Turn, Player3Turn, Player4Turn }
+    protected  enum GameplayState { Start, Playing, GameOver };
+    protected  enum PlayerTurn { Player1Turn, Player2Turn, Player3Turn, Player4Turn }
 
-    private GameplayState currentState;
-    private PlayerTurn[] playerPool;
-    private PlayerTurn currentPlayer;
+    protected  GameplayState currentState;
+    protected  PlayerTurn[] playerPool;
+    protected  PlayerTurn currentPlayer;
 
     public Button endTurnButton;
-    private bool turnEndRequested = false;
+    protected  bool turnEndRequested = false;
 
-    private void Awake()
+    protected  void Awake()
     {
         // Set up the button listener
         if (endTurnButton != null)
@@ -29,7 +30,7 @@ public class BattleHandler : MonoBehaviour
         }
     }
 
-    private void OnDestroy()
+    protected virtual  void OnDestroy()
     {
         // Clean up the button listener
         if (endTurnButton != null)
@@ -38,18 +39,18 @@ public class BattleHandler : MonoBehaviour
         }
     }
 
-    private void OnEndTurnButtonClick()
+    protected virtual  void OnEndTurnButtonClick()
     {
         turnEndRequested = true;
     }
 
-    public void StartGameLoop()
+    public virtual void StartGameLoop()
     {
         Setup();
         StartCoroutine(GameLoop());
     }
 
-    private void Setup()
+    protected virtual  void Setup()
     {
         int playerNum = GameplayManager.Instance.NumPlayer;
         Spawner.SpawnBoard();
@@ -65,7 +66,7 @@ public class BattleHandler : MonoBehaviour
         currentPlayer = playerPool[0]; // Start with Player 1
     }
 
-    private IEnumerator GameLoop()
+    protected virtual  IEnumerator GameLoop()
     {
         while (currentState != GameplayState.GameOver)
         {
@@ -99,7 +100,7 @@ public class BattleHandler : MonoBehaviour
         }
     }
 
-    private IEnumerator HandleAITurn()
+    protected virtual  IEnumerator HandleAITurn()
     {
         Debug.Log(currentPlayer + " is taking their turn.");
         List<Move> sequence = GameplayManager.Instance.AI.GetMove(GameplayManager.Instance.gameState, System.Array.IndexOf(playerPool, currentPlayer));
@@ -112,7 +113,7 @@ public class BattleHandler : MonoBehaviour
         yield return null;
     }
 
-    private IEnumerator HandlePlayerTurn()
+    protected virtual  IEnumerator HandlePlayerTurn()
     {
         // Simulate waiting for the player's actions (replace with real input logic)
         Debug.Log(currentPlayer + " is taking their turn.");
@@ -269,7 +270,7 @@ public class BattleHandler : MonoBehaviour
         return System.Array.IndexOf(playerPool, currentPlayer);
     }
 
-    private void ChangeTurn()
+    protected virtual  void ChangeTurn()
     {
         GameplayManager.Instance.ChangeTurn();
         int currentIdx = GetCurrentPlayer();

@@ -21,7 +21,7 @@ public class RoomController : MonoBehaviourPunCallbacks
     private IEnumerator DelayedPlayerInstantiation()
     {
         yield return new WaitForSeconds(2.0f);
-        PhotonNetwork.Instantiate(playerPrefab.name, spawnPoints[Random.Range(0, spawnPoints.Length - 1)].position, spawnPoints[Random.Range(0, spawnPoints.Length - 1)].rotation, 0);
+        // PhotonNetwork.Instantiate(playerPrefab.name, spawnPoints[Random.Range(0, spawnPoints.Length - 1)].position, spawnPoints[Random.Range(0, spawnPoints.Length - 1)].rotation, 0);
     }
     void OnGUI()
     {
@@ -43,5 +43,11 @@ public class RoomController : MonoBehaviourPunCallbacks
     public override void OnLeftRoom()
     {
         UnityEngine.SceneManagement.SceneManager.LoadScene(lobbyScene);
+    }
+    public override void OnPlayerEnteredRoom(Photon.Realtime.Player newPlayer)
+    {
+        if(PhotonNetwork.PlayerList.Length==2){
+            PhotonNetwork.LoadLevel("NetworkGameplay");
+        }
     }
 }
