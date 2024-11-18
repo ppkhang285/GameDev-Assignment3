@@ -9,7 +9,11 @@ public class GameplayManager : MonoBehaviour
 {
     public BattleHandler battleHandler;
     public static GameplayManager Instance { get; private set; }
+    // Adding Player Info through this
+    public static int ExtNumberPlayer = 2;
+    public static int ExtChosenDeck; // (PlayerType, PlayerDeck)
 
+    public static string ExtLevel = "Easy"; 
     public int DeckSize { get; private set; }
     public int BoardSize { get; private set; }
     public int NumPlayer { get; private set; }

@@ -8,5 +8,17 @@ public class SceneChanger : MonoBehaviour
     {
         SceneManager.LoadScene(sceneName);
     }
-    //public void ChooseDeck(int deckNo) 
+    public void ChooseDeck(int deckNo) {
+        GameplayManager.ExtChosenDeck = deckNo;
+        MoveToGameplay();
+    }
+
+    public void ChooseLevel(string level = "Easy") {
+        GameplayManager.ExtLevel = level;
+    }
+
+    public void MoveToGameplay() {
+        LoadScene("Gameplay");
+    }
+
 }
