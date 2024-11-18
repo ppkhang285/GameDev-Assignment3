@@ -62,7 +62,7 @@ public class GameplayManager : MonoBehaviour
             GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Lords/Lord_" + i.ToString() + ".prefab");
             players[i] = Instantiate(prefab);
             Player player = players[i].GetComponent<Player>();
-            player.Initialize(i, i, PlayerType.AI, locations[i]);
+            player.Initialize(i, i, PlayerType.Human, locations[i]);
             prefab.transform.position = battleHandler.Spawner.GetWorldPosition(locations[i]);
         }
 

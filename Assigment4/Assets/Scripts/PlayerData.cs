@@ -83,6 +83,7 @@ public class PlayerData
 
     public void RestoreAP()
     {
+        AP = GameConstants.MaxAP;
         foreach (CharacterData character in Characters)
         {
             character.AP = 1;

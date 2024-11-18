@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class BattleHandler : MonoBehaviour
 {
@@ -11,6 +12,36 @@ public class BattleHandler : MonoBehaviour
     private GameplayState currentState;
     private PlayerTurn[] playerPool;
     private PlayerTurn currentPlayer;
+
+    public Button endTurnButton;
+    private bool turnEndRequested = false;
+
+    private void Awake()
+    {
+        // Set up the button listener
+        if (endTurnButton != null)
+        {
+            endTurnButton.onClick.AddListener(OnEndTurnButtonClick);
+        }
+        else
+        {
+            Debug.LogError("End Turn Button not assigned to BattleHandler!");
+        }
+    }
+
+    private void OnDestroy()
+    {
+        // Clean up the button listener
+        if (endTurnButton != null)
+        {
+            endTurnButton.onClick.RemoveListener(OnEndTurnButtonClick);
+        }
+    }
+
+    private void OnEndTurnButtonClick()
+    {
+        turnEndRequested = true;
+    }
 
     public void StartGameLoop()
     {
@@ -49,9 +80,18 @@ public class BattleHandler : MonoBehaviour
 
             // Handle the current player's turn
             PlayerType playerType = GameplayManager.Instance.players[System.Array.IndexOf(playerPool, currentPlayer)].GetComponent<Player>().Data.Type;
-            if (playerType == PlayerType.Human)
+            if (playerType == PlayerType.Human) 
+            {
+                if (endTurnButton != null)
+                    endTurnButton.gameObject.SetActive(true);
+
                 yield return StartCoroutine(HandlePlayerTurn());
-            else 
+
+                // Disable the end turn button after the turn
+                if (endTurnButton != null)
+                    endTurnButton.gameObject.SetActive(false);
+            }
+            else
                 yield return StartCoroutine(HandleAITurn());
 
             // After the player's turn, move to the next player
@@ -76,21 +116,23 @@ public class BattleHandler : MonoBehaviour
     {
         // Simulate waiting for the player's actions (replace with real input logic)
         Debug.Log(currentPlayer + " is taking their turn.");
-        bool turnEnded = false;
 
         PlayerData currentPlayerData = GameplayManager.Instance.gameState.Players[GetCurrentPlayer()];
         Vector2Int? sellectedCell= null; // Set nulllabe state
         Vector2Int? spawnCell = null;
         int AP = currentPlayerData.AP;
 
-        while (!turnEnded)
+        turnEndRequested = false;
+
+        while (!turnEndRequested)
         {
-            if (Input.GetKeyDown(KeyCode.Return)) // TODO: check "End Turn" button click
-            {
-                Debug.Log("Player ended their turn.");
-                turnEnded = true;
-                sellectedCell = null; // Reset buffer for next player turn/action 
-            }
+
+            //if (Input.GetKeyDown(KeyCode.Return)) // TODO: check "End Turn" button click
+            //{
+            //    Debug.Log("Player ended their turn.");
+            //    turnEnded = true;
+            //    sellectedCell = null; // Reset buffer for next player turn/action 
+            //}
 
             // Handling spawn action (require valid spawn key to unlock)
             for (int keyval = 0; keyval <= 9; keyval++){
@@ -173,7 +215,7 @@ public class BattleHandler : MonoBehaviour
                                 AP -= 1;
                             } else
                             {
-                                // Debug.Log("Out of action points");
+                                Debug.Log("Out of action points");
                             }
                         }
                     } else if (cell.Item1 != curPlayer){
@@ -190,7 +232,7 @@ public class BattleHandler : MonoBehaviour
                                 AP -= 1;
                             } else
                             {
-                                // Debug.Log("Out of action points");
+                                Debug.Log("Out of action points");
                             }
                         }
                     } else {
