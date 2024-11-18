@@ -8,7 +8,7 @@ public class SceneChanger : MonoBehaviour
     private string level = "Easy"; 
     private int deckNo = 0;
 
-    private int AI = 2;
+    private int AI = 1;
     private bool isPVP = false;
 
 
@@ -31,15 +31,17 @@ public class SceneChanger : MonoBehaviour
     }
 
     public void StartPVE(){
-        GameplayManager.isPVP = false;
+        GameplayManager.isPVP = isPVP;
         GameplayManager.ExtChosenDeck = deckNo;
         GameplayManager.ExtLevel = level;
-        GameplayManager.ExtNumberOfAI = AI;
+        GameplayManager.ExtNumberPlayer = AI + 1;
         MoveToGameplay();
     }
+
     public void SetAINumber(int No){
         AI = No;
     }
+
     public void MoveToGameplay() {
         LoadScene("Gameplay");
     }
