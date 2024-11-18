@@ -15,10 +15,10 @@ public class BattleHandler : MonoBehaviour
     private PlayerTurn currentPlayer;
 
     //Game Object for menu
-    public GameObject playerName;
-    public GameObject playerHP;
-    public GameObject playerAttackRange;
-    public GameObject playerMovementRange;
+    public GameObject charDmg;
+    public GameObject charHP;
+    public GameObject charAttackRange;
+    public GameObject charMovementRange;
 
     public Button endTurnButton;
     private bool turnEndRequested = false;
@@ -196,31 +196,19 @@ public class BattleHandler : MonoBehaviour
                     if (cell.Item1 == curPlayer){
                         if (cell.Item2 == -1){
                             // TODO: display Lord stats
-                            playerName.SetActive(false);
-                            playerHP.SetActive(false);
-                            playerAttackRange.SetActive(false);
-                            playerMovementRange.SetActive(false);
+                            SetCharacterInfo(GameConstants.LordDmg, GameConstants.LordHP, -1, 0);
+                            DisplayCharaterInfo(true);
                         }
                         else {
                             sellectedCell = clickedCell;
-                            // TODO: display unit stats
                             CharacterData data = GameplayManager.Instance.gameState.Players[cell.Item1].Characters[cell.Item2];
                             CharacterStats stats = data.characterStats; // all the base stats are in here, display them
-                            playerName.GetComponent<Text>().text = "Cost: " + stats.cost;
-                            playerHP.GetComponent<Text>().text = "HP: " + stats.hp;
-                            playerAttackRange.GetComponent<Text>().text = "Attack Range: " + stats.attackRange;
-                            playerMovementRange.GetComponent<Text>().text = "Movement Range: " + stats.movementRange;
-                            playerName.SetActive(true);
-                            playerHP.SetActive(true);
-                            playerAttackRange.SetActive(true);
-                            playerMovementRange.SetActive(true);
+                            SetCharacterInfo(stats.hp, stats.damage, stats.attackRange, stats.movementRange);
+                            DisplayCharaterInfo(true);
 
                         }
                     } else if (cell.Item1 == -1){
-                        playerName.SetActive(false);
-                        playerHP.SetActive(false);
-                        playerAttackRange.SetActive(false);
-                        playerMovementRange.SetActive(false);
+                        DisplayCharaterInfo(false);
                         foreach ( Vector2Int spawnLocation in currentPlayerData.SpawnLocations){
                             if (clickedCell == spawnLocation){
                                 spawnCell = clickedCell;
@@ -231,10 +219,7 @@ public class BattleHandler : MonoBehaviour
                         }
                     } else {
                         // Debug.Log("Illegal action: Select enemy unit");
-                        playerName.SetActive(false);
-                        playerHP.SetActive(false);
-                        playerAttackRange.SetActive(false);
-                        playerMovementRange.SetActive(false);
+                        DisplayCharaterInfo(false);
                     }
                 } else if (sellectedCell.HasValue) {
                     Vector2Int prevCell= sellectedCell.Value;
@@ -242,10 +227,7 @@ public class BattleHandler : MonoBehaviour
                     sellectedCell = null; 
                     CharacterData CharData = GameplayManager.Instance.gameState.Players[curPlayer].Characters[mappedChar];
                     if (cell.Item1 == -1){
-                        playerName.SetActive(false);
-                        playerHP.SetActive(false);
-                        playerAttackRange.SetActive(false);
-                        playerMovementRange.SetActive(false);
+                        DisplayCharaterInfo(false);
                         int Distannce= Utils.ManhattanDistance(prevCell, clickedCell);
                         if (Distannce > CharData.characterStats.movementRange){
                         } else {
@@ -257,10 +239,7 @@ public class BattleHandler : MonoBehaviour
                             }
                         }
                     } else if (cell.Item1 != curPlayer){
-                        playerName.SetActive(false);
-                        playerHP.SetActive(false);
-                        playerAttackRange.SetActive(false);
-                        playerMovementRange.SetActive(false);
+                        DisplayCharaterInfo(false);
                         int Distannce= Utils.ManhattanDistance(prevCell, clickedCell);
                         if (Distannce > CharData.characterStats.attackRange){
                             Debug.Log("Illegal attack: Out of range");
@@ -274,18 +253,10 @@ public class BattleHandler : MonoBehaviour
                         }
                     } else {
                         sellectedCell = clickedCell;
-
-                        // TODO: display unit info
                         CharacterData data = GameplayManager.Instance.gameState.Players[cell.Item1].Characters[cell.Item2];
                         CharacterStats stats = data.characterStats; // all the base stats are in here, display them
-                        playerName.GetComponent<Text>().text = "Cost: " + stats.cost;
-                        playerHP.GetComponent<Text>().text = "HP: " + stats.hp;
-                        playerAttackRange.GetComponent<Text>().text = "Attack Range: " + stats.attackRange;
-                        playerMovementRange.GetComponent<Text>().text = "Movement Range: " + stats.movementRange;
-                        playerName.SetActive(true);
-                        playerHP.SetActive(true);
-                        playerAttackRange.SetActive(true);
-                        playerMovementRange.SetActive(true);
+                        SetCharacterInfo(stats.hp, stats.damage, stats.attackRange, stats.movementRange);
+                        DisplayCharaterInfo(true);
                     }
                 }
  
@@ -327,4 +298,19 @@ public class BattleHandler : MonoBehaviour
         currentPlayer = playerPool[nextIdx];
     }
 
+    private void DisplayCharaterInfo(bool display)
+    {
+        charDmg.SetActive(display);
+        charHP.SetActive(display);
+        charAttackRange.SetActive(display);
+        charMovementRange.SetActive(display);
+    }
+
+    private void SetCharacterInfo(int hp, int damage, int attackRange, int movementRange)
+    {
+        charDmg.GetComponent<Text>().text = "Damage: " + damage;
+        charHP.GetComponent<Text>().text = "HP: " + hp;
+        charAttackRange.GetComponent<Text>().text = "Attack Range: " + attackRange;
+        charMovementRange.GetComponent<Text>().text = "Movement Range: " + movementRange;
+    }
 }
