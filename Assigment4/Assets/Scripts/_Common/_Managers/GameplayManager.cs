@@ -11,7 +11,10 @@ public class GameplayManager : MonoBehaviour
     public static GameplayManager Instance { get; private set; }
     // Adding Player Info through this
     public static int ExtNumberPlayer = 2;
-    public static int ExtChosenDeck; // (PlayerType, PlayerDeck)
+    public static int ExtChosenDeck;
+    public static int ExtNumberOfAI  = 0;
+    public static bool isPVP = false;
+    
 
     public static string ExtLevel = "Easy"; 
     public int DeckSize { get; private set; }
