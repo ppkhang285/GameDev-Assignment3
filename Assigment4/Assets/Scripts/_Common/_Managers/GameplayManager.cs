@@ -58,8 +58,8 @@ public class GameplayManager : MonoBehaviour
             } else
             {
                 locations[1] = new Vector2Int(BoardSize - 1, 0);
-                locations[2] = new Vector2Int(0, BoardSize - 1);
-                locations[3] = new Vector2Int(BoardSize - 1, BoardSize - 1);
+                locations[2] = new Vector2Int(BoardSize - 1, BoardSize - 1);
+                locations[3] = new Vector2Int(0, BoardSize - 1);
             }
         }
         if (!isPVP)
