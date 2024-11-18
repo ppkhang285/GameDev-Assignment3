@@ -103,15 +103,146 @@ public class NetworkBattleHandler : BattleHandler
 
     
     // Handle spawn action and move actions from the network perspective
-    protected override IEnumerator HandlePlayerTurn()
+    protected override  IEnumerator HandlePlayerTurn()
     {
-        // Allow the current player to act.
-        Debug.Log($"{currentPlayer} is taking their turn");
+        // Simulate waiting for the player's actions (replace with real input logic)
+        Debug.Log(currentPlayer + " is taking their turn.");
 
-        // Add network-related logic to sync actions
-        yield return base.HandlePlayerTurn();
+        PlayerData currentPlayerData = GameplayManager.Instance.gameState.Players[GetCurrentPlayer()];
+        Vector2Int? sellectedCell= null; // Set nulllabe state
+        Vector2Int? spawnCell = null;
+        int AP = currentPlayerData.AP;
 
+        turnEndRequested = false;
+
+        while (!turnEndRequested)
+        {
+            // Handling spawn action (require valid spawn key to unlock)
+            for (int keyval = 0; keyval <= 9; keyval++){
+                KeyCode key = keyval + KeyCode.Alpha0;
+                if (Input.GetKey(key)){
+                    if (spawnCell != null)
+                    {
+                        int charCost = currentPlayerData.Characters[keyval].characterStats.cost;
+                        if (currentPlayerData.Energy < charCost)
+                        {
+                            Debug.Log("Illegal spawn: Not enough energy or character");
+                        }
+                        else if (currentPlayerData.Characters[keyval].Spawned)
+                        {
+                            Debug.Log("Illegal spawn: Character already spawned");
+                        }
+                        else
+                        {
+                            // Clear buffered click
+                            Vector2Int prevCell = spawnCell.Value;
+                            spawnCell = null;
+                            Move NewMove = new Move(new Vector2Int(GetCurrentPlayer(), keyval), prevCell, MoveType.Spawn);
+                            //Debug.Log("Spawn action: " + NewMove.ToString());
+                            GameplayManager.Instance.ApplyMove(NewMove);
+                        }
+                    }
+                    
+                }
+            }
+
+            if (Input.GetMouseButtonDown(0)) // Left mouse click
+            {
+                int curPlayer = GetCurrentPlayer();
+                Vector2Int clickedCell = Spawner.GetClickedCell();
+                if (clickedCell.x == -1 || clickedCell.y == -1) yield break; // Clicked outside the board will cancel everything
+                // Debug.Log($"Clicked cell: Row {clickedCell.y}, Column {clickedCell.x}");
+                (int,int,int) cell = GameplayManager.Instance.gameState.Cells[clickedCell.y][clickedCell.x];
+                if (cell.Item1 != -1 ){
+                    // None-empty cell:
+                }
+                if (sellectedCell == null && spawnCell == null){
+                    // Handle select own unit
+                    if (cell.Item1 == curPlayer){
+                        if (cell.Item2 == -1){
+                            // Debug.Log("Selected Lord at: Row " + clickedCell.y + ", Column " + clickedCell.x);
+                            // TODO: display Lord stats
+                        }
+                        else {
+                            sellectedCell = clickedCell;
+                            // Debug.Log($"Selected unit at: Row {sellectedCell.Value.y}, Column {sellectedCell.Value.x}");
+
+                            // TODO: display unit stats
+                            CharacterData data = GameplayManager.Instance.gameState.Players[cell.Item1].Characters[cell.Item2];
+                            CharacterStats stats = data.characterStats; // all the base stats are in here, display them
+                            
+                        }
+                    } else if (cell.Item1 == -1){
+                        // Handle spawn action
+                        foreach( Vector2Int spawnLocation in currentPlayerData.SpawnLocations){
+                            if (clickedCell == spawnLocation){
+                                spawnCell = clickedCell;
+                                // Debug.Log($"Selected spawn location at: Row {spawnCell.Value.y}, Column {spawnCell.Value.x}");
+
+                                // TODO: popup for choosing character to spawn
+                            }
+                        }
+                    } else {
+                        // Debug.Log("Illegal action: Select enemy unit");
+                    }
+                } else if (sellectedCell.HasValue) {
+                    // Clear buffered click
+                    Vector2Int prevCell= sellectedCell.Value;
+                    int mappedChar = GameplayManager.Instance.gameState.Cells[prevCell.y][prevCell.x].Item2;
+                    sellectedCell = null; 
+                    CharacterData CharData = GameplayManager.Instance.gameState.Players[curPlayer].Characters[mappedChar];
+                    if (cell.Item1 == -1){
+                        // Move action
+                        int Distannce= Utils.ManhattanDistance(prevCell, clickedCell);
+                        if (Distannce > CharData.characterStats.movementRange){
+                            // Debug.Log("Illegal move: Out of range");
+                        } else {
+                            if (CharData.AP > 0 && AP > 0)
+                            {
+                                Move NewMove = new Move(prevCell, clickedCell, MoveType.CharMove);
+                                // Debug.Log("Move action: " + NewMove.ToString());
+                                GameplayManager.Instance.ApplyMove(NewMove);
+                                AP -= 1;
+                            } else
+                            {
+                                // Debug.Log("Out of action points");
+                            }
+                        }
+                    } else if (cell.Item1 != curPlayer){
+                        // Attack action
+                        int Distannce= Utils.ManhattanDistance(prevCell, clickedCell);
+                        if (Distannce > CharData.characterStats.attackRange){
+                            Debug.Log("Illegal attack: Out of range");
+                        } else {
+                            if (CharData.AP > 0 && AP > 0)
+                            {
+                                Move NewMove = new Move(prevCell, clickedCell, MoveType.CharAttack);
+                                // Debug.Log("Attack action: " + NewMove.ToString());
+                                GameplayManager.Instance.ApplyMove(NewMove);
+                                AP -= 1;
+                            } else
+                            {
+                                // Debug.Log("Out of action points");
+                            }
+                        }
+                    } else {
+                        // Select another unit 
+                        sellectedCell = clickedCell;
+                        // Debug.Log($"Selected another unit at: Row {sellectedCell.Value.y}, Column {sellectedCell.Value.x}");
+
+                        // TODO: display unit info
+                        CharacterData data = GameplayManager.Instance.gameState.Players[cell.Item1].Characters[cell.Item2];
+                        CharacterStats stats = data.characterStats; // all the base stats are in here, display them
+                    }
+                }
+ 
+            }
+
+            // Wait until the next frame to check again
+            
+            yield return null;
+        }
+        
     }
-
 
 }
