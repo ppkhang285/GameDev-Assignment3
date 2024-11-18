@@ -152,8 +152,11 @@ public class GameplayManager : MonoBehaviour
         int charIndex = gameState.Cells[move.Source.y][move.Source.x].Item2;
         GameObject character = players[player].GetComponent<Player>().characters[charIndex]; // Get the character that needs to move
         bool direction = destination.x > start.x;
+        character.GetComponent<Character>().Data.AP -= 1;
         character.GetComponent<Character>().CharMove(direction);
+        character.GetComponent<Character>().Data.AP += 1;
         character.transform.position = destination;
+
     }
 
     public void ApplyCharAttack(Move move)
@@ -164,7 +167,9 @@ public class GameplayManager : MonoBehaviour
         int charIndex = gameState.Cells[move.Source.y][move.Source.x].Item2;
         GameObject character = players[player].GetComponent<Player>().characters[charIndex]; // Get the character that needs to attack
         bool direction = destination.x > start.x;
+        character.GetComponent<Character>().Data.AP -= 1;
         character.GetComponent<Character>().CharAttack(direction);
+        character.GetComponent<Character>().Data.AP += 1;
 
         int targetPlayer = gameState.Cells[move.Target.y][move.Target.x].Item1; // Get the player that receives the attack
         int targetIndex = gameState.Cells[move.Target.y][move.Target.x].Item2;
@@ -174,6 +179,12 @@ public class GameplayManager : MonoBehaviour
             if (targetCharacter.GetComponent<Character>().Data.CurrentHP <= character.GetComponent<Character>().Data.characterStats.damage)
             {
                 targetCharacter.GetComponent<SpriteRenderer>().enabled = false;
+                character.GetComponent<Character>().bar.bar.SetActive(false);
+            } else
+            {
+                targetCharacter.GetComponent<Character>().Data.CurrentHP -= character.GetComponent<Character>().Data.characterStats.damage;
+                targetCharacter.GetComponent<Character>().TakeDmg();
+                targetCharacter.GetComponent<Character>().Data.CurrentHP += character.GetComponent<Character>().Data.characterStats.damage;
             }
         }
     }
@@ -186,6 +197,7 @@ public class GameplayManager : MonoBehaviour
         GameObject character = players[player].GetComponent<Player>().characters[charIndex]; // Get the character that needs to spawn
         character.transform.position = destination;
         character.GetComponent<SpriteRenderer>().enabled = true;
+        character.GetComponent<Character>().bar.bar.SetActive(true);
     }
 
 

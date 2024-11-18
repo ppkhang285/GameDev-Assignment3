@@ -11,7 +11,7 @@ using UnityEngine;
 public class CharBar
 {
 
-    private GameObject bar;
+    public GameObject bar;
     private TMP_Text teamText;
     private TMP_Text hpText;
     private TMP_Text apText;
@@ -54,7 +54,7 @@ public class Character : MonoBehaviour
 
     public CharacterData Data { get; set; }
 
-    private CharBar bar;
+    public CharBar bar;
     private Animator animator;
    
     public void Initialize(string name, int team)
@@ -103,18 +103,21 @@ public class Character : MonoBehaviour
     public void CharMove(bool direction)
     {
         // The character moves visually
+        UpdateStats();
     }
 
     public void CharAttack(bool direction)
     {
         // The character attacks visually
         StartCoroutine(PlayAttackAnim(direction));
-        
+        UpdateStats();
+
     }
 
     public void TakeDmg()
     {
         // The character takes damage visually
+        UpdateStats();
     }
 
    
