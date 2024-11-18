@@ -28,4 +28,12 @@ public class Player : MonoBehaviour
 
         Data = new PlayerData(playerNo, type, characters.Select(p => p.GetComponent<Character>().Data).ToArray(), location);
     }
+
+    public void RestoreAP()
+    {
+        foreach (GameObject character in characters)
+        {
+            character.GetComponent<Character>().UpdateStats();
+        }
+    }
 }

@@ -124,6 +124,7 @@ public class GameplayManager : MonoBehaviour
         gameState.Turn += 1;
         int currentPlayer = battleHandler.GetCurrentPlayer();
         gameState.ChangeTurn(currentPlayer, GameConstants.EnergyPerTurn);
+        players[currentPlayer].GetComponent<Player>().RestoreAP();
     }
 
     public int GetNextPlayer(int currentPlayer)
@@ -198,6 +199,8 @@ public class GameplayManager : MonoBehaviour
         character.transform.position = destination;
         character.GetComponent<SpriteRenderer>().enabled = true;
         character.GetComponent<Character>().bar.bar.SetActive(true);
+        character.GetComponent<Character>().Data.AP = 1;
+        character.GetComponent<Character>().UpdateStats();
     }
 
 
