@@ -29,4 +29,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/DeckSelectionMenu.unity
     guid: fc3a4867e911fa8469d29f21ddb0cc4a
+  - enabled: 1
+    path: Assets/Scenes/Gameplay.unity
+    guid: bdea360098d55d54ab2c7635a6091f41
   m_configObjects: {}
