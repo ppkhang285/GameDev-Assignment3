@@ -180,7 +180,7 @@ public class GameplayManager : MonoBehaviour
             if (targetCharacter.GetComponent<Character>().Data.CurrentHP <= character.GetComponent<Character>().Data.characterStats.damage)
             {
                 targetCharacter.GetComponent<SpriteRenderer>().enabled = false;
-                character.GetComponent<Character>().bar.bar.SetActive(false);
+                targetCharacter.GetComponent<Character>().bar.bar.SetActive(false);
             } else
             {
                 targetCharacter.GetComponent<Character>().Data.CurrentHP -= character.GetComponent<Character>().Data.characterStats.damage;
