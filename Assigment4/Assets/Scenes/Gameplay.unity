@@ -444,6 +444,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   panelPrefab: {fileID: 8404343336898392271, guid: cc50c1e3cf9b52346b6f35c7f37e1599, type: 3}
+  spawnPanelPrefab: {fileID: 8404343336898392271, guid: cce4618ae00f535448004120ee76587a, type: 3}
   field: {fileID: 691581233}
 --- !u!4 &344159715
 Transform:
