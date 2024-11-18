@@ -33,8 +33,8 @@ public class MinimaxAI : BaseAI
         }
         else
         {
-            float[] alpha = new float[gameplayManager.NumPlayer].Select(_ => float.NegativeInfinity).ToArray();
-            float[] beta = new float[gameplayManager.NumPlayer].Select(_ => float.PositiveInfinity).ToArray();
+            float[] alpha = new float[GameplayManager.ExtNumberPlayer].Select(_ => float.NegativeInfinity).ToArray();
+            float[] beta = new float[GameplayManager.ExtNumberPlayer].Select(_ => float.PositiveInfinity).ToArray();
             var result = AlphaBeta(gameState, maxDepth, currentPlayer, alpha, beta);
             stopwatch.Stop();
             return result.Item2 ?? GetFallbackMove(gameState, currentPlayer);
@@ -67,7 +67,7 @@ public class MinimaxAI : BaseAI
         }
 
         float bestValue = float.NegativeInfinity;
-        float[] outcome = new float[gameplayManager.NumPlayer];
+        float[] outcome = new float[GameplayManager.ExtNumberPlayer];
         List<Move> bestSequence = null;
 
         List<List<Move>> moveSequences = GetMoveSequences(gameState, currentPlayer);
@@ -107,7 +107,7 @@ public class MinimaxAI : BaseAI
             return (Evaluate(gameState), null);
         }
 
-        float[] bestOutcome = new float[gameplayManager.NumPlayer];
+        float[] bestOutcome = new float[GameplayManager.ExtNumberPlayer];
         List<Move> bestSequence = null;
 
         List<List<Move>> moveSequences = GetMoveSequences(gameState, currentPlayer);

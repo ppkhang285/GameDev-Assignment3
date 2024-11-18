@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class BattleHandler : MonoBehaviour
@@ -57,7 +58,7 @@ public class BattleHandler : MonoBehaviour
 
     private void Setup()
     {
-        int playerNum = GameplayManager.Instance.NumPlayer;
+        int playerNum = GameplayManager.ExtNumberPlayer;
         Spawner.SpawnBoard();
 
         // Initialize playerPool based on playerNum
@@ -103,6 +104,29 @@ public class BattleHandler : MonoBehaviour
             // After the player's turn, move to the next player
             ChangeTurn();
         }
+        if (!GameplayManager.isPVP)
+        {
+            if (GameplayManager.Instance.gameState.Defeated[0])
+            {
+                if (GameplayManager.ExtNumberPlayer == 2)
+                    GameplayManager.Instance.SelectedGameOverCanvas = "Defeat Scene";
+                else if (GameplayManager.ExtNumberPlayer == 3)
+                    GameplayManager.Instance.SelectedGameOverCanvas = "Defeat Scene 1 vs 1 vs 1";
+                else
+                    GameplayManager.Instance.SelectedGameOverCanvas = "Defeat Scene 1 vs 1 vs 1 vs 1";
+            }
+            else
+            {
+                if (GameplayManager.ExtNumberPlayer == 2)
+                    GameplayManager.Instance.SelectedGameOverCanvas = "Victory Scene 1 vs 1";
+                else if (GameplayManager.ExtNumberPlayer == 3)
+                    GameplayManager.Instance.SelectedGameOverCanvas = "Victory Scene 1 vs 1 vs 1";
+                else
+                    GameplayManager.Instance.SelectedGameOverCanvas = "Victory Scene 1 vs 1 vs 1 vs 1";
+            }
+        } 
+
+        SceneManager.LoadScene("GameOverMenu");
     }
 
     private IEnumerator HandleAITurn()
@@ -302,4 +326,5 @@ public class BattleHandler : MonoBehaviour
         }
         currentPlayer = playerPool[nextIdx];
     }
+
 }
