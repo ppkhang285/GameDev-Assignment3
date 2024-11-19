@@ -156,8 +156,13 @@ public class BattleHandler : MonoBehaviour
 
         turnEndRequested = false;
 
+
         while (!turnEndRequested)
         {
+            if (Input.GetKey(KeyCode.Return))
+            {
+                turnEndRequested = true;
+            }
             for (int keyval = 0; keyval <= 9; keyval++){
                 KeyCode key = keyval + KeyCode.Alpha0;
                 if (Input.GetKey(key)){
