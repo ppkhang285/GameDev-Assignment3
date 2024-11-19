@@ -20,20 +20,15 @@ public class NetworkBattleHandler : BattleHandler
         endTurnButton.gameObject.SetActive(false);
         Setup();
         // if (PhotonNetwork.IsMasterClient) {
-            StartCoroutine(GameLoop());
-            Debug.LogError("start game loop");
-        // }
+        StartCoroutine(GameLoop());
+        Debug.LogError("start game loop");
+ 
     }
     protected override  void OnEndTurnButtonClick()
     {
-        if (!PhotonNetwork.IsMasterClient)
-        {
-            photonView.RPC("RPC_EndTurn", RpcTarget.MasterClient);
-        }
-        else{
-            Debug.LogError("Turn end requested by a masterclient.");
-            turnEndRequested=true;
-        }
+        Debug.LogError("i call end turn");
+        turnEndRequested=true;
+        photonView.RPC("RPC_EndTurn",RpcTarget.Others);
     }
     protected override IEnumerator GameLoop()
     {
@@ -69,15 +64,13 @@ public class NetworkBattleHandler : BattleHandler
                 {
                     yield return null;
                 }
-                turnEndRequested = false;
             }else
             {
                 yield return null;
             }
 
-            // Only master client changes turns
-            if (PhotonNetwork.IsMasterClient)
-            {
+            if (PhotonNetwork.IsMasterClient){
+                Debug.LogError("master client call change turn");
                 ChangeTurn();
             }
         }
@@ -86,7 +79,7 @@ public class NetworkBattleHandler : BattleHandler
     }
     [PunRPC]
     public void RPC_EndTurn() {
-        Debug.LogError("Turn end requested by a client.");
+        Debug.LogError("i receive end turn.");
         turnEndRequested = true;
     }
     protected override void ChangeTurn()
@@ -94,7 +87,8 @@ public class NetworkBattleHandler : BattleHandler
         base.ChangeTurn(); // Call the base method to switch turns
 
         // Notify other players that it's the next player's turn
-        photonView.RPC("RPC_UpdateTurn", RpcTarget.AllBuffered, currentPlayer.ToString());
+        Debug.LogError("new player turn is: "+currentPlayer.ToString());
+        photonView.RPC("RPC_UpdateTurn", RpcTarget.Others, currentPlayer.ToString());
     }
     [PunRPC]
     private void RPC_UpdateTurn(string playerTurn)
