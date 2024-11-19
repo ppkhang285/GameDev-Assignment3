@@ -6,6 +6,7 @@ using UnityEngine;
 public class BoardSpawner : MonoBehaviour
 {
     [SerializeField] private GameObject panelPrefab;
+    [SerializeField] private GameObject spawnPanelPrefab;
     [SerializeField] private GameObject field;
 
     private const int FIELD_SIZE = GameConstants.BoardSize;
@@ -46,6 +47,16 @@ public class BoardSpawner : MonoBehaviour
     private void SpawnField()
     {
         Transform fieldTranfrom = field.transform;
+        // Get Spawnlocation
+        
+        List<Vector2Int> spawnLocations = new List<Vector2Int> ();
+        foreach(GameObject player in GameplayManager.Instance.players)
+        {
+            foreach(Vector2Int spawnLoc in player.GetComponent<Player>().Data.SpawnLocations)
+            {
+                spawnLocations.Add(spawnLoc);
+            }
+        }
 
         for (int i = 0; i < FIELD_SIZE; i++)
         {
@@ -55,11 +66,34 @@ public class BoardSpawner : MonoBehaviour
                 pos.x += panelSize.x * i;
                 pos.y -= panelSize.y * j;
 
-                GameObject newPanel = Instantiate(panelPrefab, pos, Quaternion.identity, fieldTranfrom);
+                GameObject newPanel;
+
+                if (IsSpawnLocation(j,i, spawnLocations))
+                {
+                    newPanel = Instantiate(spawnPanelPrefab, pos, Quaternion.identity, fieldTranfrom);
+                }
+                else
+                {
+                    newPanel = Instantiate(panelPrefab, pos, Quaternion.identity, fieldTranfrom);
+                }
+
                 newPanel.name = $"{j}_{i}";
            
+
             }
         }
+    }
+
+    private bool IsSpawnLocation(int i, int j, List<Vector2Int> spawnLocs)
+    {
+        foreach(Vector2Int spawnLoc in spawnLocs)
+        {
+            if (spawnLoc.x == i && spawnLoc.y == j)
+            {
+                return true;
+            } 
+        }
+        return false;
     }
 
     private void CacheFieldOrigin()

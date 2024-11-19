@@ -1,29 +1,93 @@
 using NaughtyAttributes;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 
 
+public class CharBar
+{
+
+    public GameObject bar;
+    private TMP_Text teamText;
+    private TMP_Text hpText;
+    private TMP_Text apText;
+
+
+    public CharBar(GameObject bar, int teamNumber, int hp, int ap)
+    {
+        this.bar = bar;
+        SetupObject();
+
+        teamNumber += 1;
+        teamText.text = "P" + teamNumber.ToString();
+        UpdateStats(hp, ap);
+
+    }
+
+    private void SetupObject()
+    {
+        GameObject slider = bar.transform.GetChild(0).gameObject;
+
+        hpText = slider.transform.GetChild(1).gameObject.GetComponent<TMP_Text>();
+        apText = slider.transform.GetChild(2).gameObject.GetComponent<TMP_Text>();
+        teamText = bar.transform.GetChild(1).gameObject.GetComponent<TMP_Text>();
+
+       
+    }
+
+
+    public void UpdateStats(int hp, int ap)
+    {
+        hpText.text = hp.ToString();
+        apText.text = ap.ToString();
+
+    }
+}
+
 // Attach to the Chess pieces game objects on the board
 public class Character : MonoBehaviour
 {
-    public CharacterData Data { get; set; }
-    
 
+    public CharacterData Data { get; set; }
+
+    public CharBar bar;
     private Animator animator;
+   
     public void Initialize(string name, int team)
     {
         // CharacterStats characterStats = AssetDatabase.LoadAssetAtPath<CharacterStats>("Assets/Scripts/Characters/Stats/" + name + ".asset");
         CharacterStats characterStats = Resources.Load<CharacterStats>("Stats/" + name);
         Data = new CharacterData(characterStats, team);
+
+        Setup();
     }
     // Start is called before the first frame updates
     void Start()
     {
+        //Setup();
         animator = GetComponent<Animator>();
     }
+
+
+    private void Setup()
+    {
+        
+
+        GameObject barPrefab = Resources.Load<GameObject>("Gameplay/UI/Char_bar");
+        if (barPrefab != null)
+        {
+            Debug.Log($"No bar prefab loaded at {name}");
+        }
+        GameObject newBar = Instantiate(barPrefab, transform);
+
+        bar = new CharBar(newBar, Data.PlayerTeam, Data.CurrentHP, Data.AP);
+
+    }
+
 
     // Update is called once per frame
     void Update()
@@ -31,21 +95,29 @@ public class Character : MonoBehaviour
         
     }
 
+    public void UpdateStats()
+    {
+        bar.UpdateStats(Data.CurrentHP, Data.AP);
+    }
+
     public void CharMove(bool direction)
     {
         // The character moves visually
+        UpdateStats();
     }
 
     public void CharAttack(bool direction)
     {
         // The character attacks visually
         StartCoroutine(PlayAttackAnim(direction));
-        
+        UpdateStats();
+
     }
 
     public void TakeDmg()
     {
         // The character takes damage visually
+        UpdateStats();
     }
 
    

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Photon.Pun;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class BattleHandler : MonoBehaviourPunCallbacks
@@ -13,6 +14,12 @@ public class BattleHandler : MonoBehaviourPunCallbacks
     protected  GameplayState currentState;
     protected  PlayerTurn[] playerPool;
     protected  PlayerTurn currentPlayer;
+
+    //Game Object for menu
+    public GameObject charDmg;
+    public GameObject charHP;
+    public GameObject charAttackRange;
+    public GameObject charMovementRange;
 
     public Button endTurnButton;
     protected  bool turnEndRequested = false;
@@ -52,7 +59,7 @@ public class BattleHandler : MonoBehaviourPunCallbacks
 
     protected virtual  void Setup()
     {
-        int playerNum = GameplayManager.Instance.NumPlayer;
+        int playerNum = GameplayManager.ExtNumberPlayer;
         Spawner.SpawnBoard();
 
         // Initialize playerPool based on playerNum
@@ -60,6 +67,8 @@ public class BattleHandler : MonoBehaviourPunCallbacks
         for (int i = 0; i < playerNum; i++)
         {
             playerPool[i] = (PlayerTurn)i;
+            GameObject player = GameplayManager.Instance.players[i];
+            player.transform.position = Spawner.GetWorldPosition(player.GetComponent<Player>().Data.LordLocation);
         }
 
         currentState = GameplayState.Start;
@@ -98,6 +107,29 @@ public class BattleHandler : MonoBehaviourPunCallbacks
             // After the player's turn, move to the next player
             ChangeTurn();
         }
+        if (!GameplayManager.isPVP)
+        {
+            if (GameplayManager.Instance.gameState.Defeated[0])
+            {
+                if (GameplayManager.ExtNumberPlayer == 2)
+                    GameplayManager.Instance.SelectedGameOverCanvas = "Defeat Scene";
+                else if (GameplayManager.ExtNumberPlayer == 3)
+                    GameplayManager.Instance.SelectedGameOverCanvas = "Defeat Scene 1 vs 1 vs 1";
+                else
+                    GameplayManager.Instance.SelectedGameOverCanvas = "Defeat Scene 1 vs 1 vs 1 vs 1";
+            }
+            else
+            {
+                if (GameplayManager.ExtNumberPlayer == 2)
+                    GameplayManager.Instance.SelectedGameOverCanvas = "Victory Scene 1 vs 1";
+                else if (GameplayManager.ExtNumberPlayer == 3)
+                    GameplayManager.Instance.SelectedGameOverCanvas = "Victory Scene 1 vs 1 vs 1";
+                else
+                    GameplayManager.Instance.SelectedGameOverCanvas = "Victory Scene 1 vs 1 vs 1 vs 1";
+            }
+        } // TODO: check for PVP
+
+        SceneManager.LoadScene("GameOverMenu");
     }
 
     protected virtual  IEnumerator HandleAITurn()
@@ -125,9 +157,13 @@ public class BattleHandler : MonoBehaviourPunCallbacks
 
         turnEndRequested = false;
 
+
         while (!turnEndRequested)
         {
-            // Handling spawn action (require valid spawn key to unlock)
+            if (Input.GetKey(KeyCode.Return))
+            {
+                turnEndRequested = true;
+            }
             for (int keyval = 0; keyval <= 9; keyval++){
                 KeyCode key = keyval + KeyCode.Alpha0;
                 if (Input.GetKey(key)){
@@ -144,11 +180,9 @@ public class BattleHandler : MonoBehaviourPunCallbacks
                         }
                         else
                         {
-                            // Clear buffered click
                             Vector2Int prevCell = spawnCell.Value;
                             spawnCell = null;
                             Move NewMove = new Move(new Vector2Int(GetCurrentPlayer(), keyval), prevCell, MoveType.Spawn);
-                            //Debug.Log("Spawn action: " + NewMove.ToString());
                             GameplayManager.Instance.ApplyMove(NewMove);
                         }
                     }
@@ -160,66 +194,72 @@ public class BattleHandler : MonoBehaviourPunCallbacks
             {
                 int curPlayer = GetCurrentPlayer();
                 Vector2Int clickedCell = Spawner.GetClickedCell();
-                if (clickedCell.x == -1 || clickedCell.y == -1) yield break; // Clicked outside the board will cancel everything
-                // Debug.Log($"Clicked cell: Row {clickedCell.y}, Column {clickedCell.x}");
-                (int,int,int) cell = GameplayManager.Instance.gameState.Cells[clickedCell.y][clickedCell.x];
-                if (cell.Item1 != -1 ){
-                    // None-empty cell:
+                if (clickedCell.x == -1 || clickedCell.y == -1)
+                {
+                    DisplayCharaterInfo(false);
+                    yield break;
                 }
+                (int,int,int) cell = GameplayManager.Instance.gameState.Cells[clickedCell.y][clickedCell.x];
                 if (sellectedCell == null && spawnCell == null){
                     // Handle select own unit
                     if (cell.Item1 == curPlayer){
                         if (cell.Item2 == -1){
-                            // Debug.Log("Selected Lord at: Row " + clickedCell.y + ", Column " + clickedCell.x);
                             // TODO: display Lord stats
+                            SetCharacterInfo(GameConstants.LordHP, GameConstants.LordDmg, -1, 0);
+                            DisplayCharaterInfo(true);
                         }
                         else {
                             sellectedCell = clickedCell;
-                            // Debug.Log($"Selected unit at: Row {sellectedCell.Value.y}, Column {sellectedCell.Value.x}");
-
-                            // TODO: display unit stats
                             CharacterData data = GameplayManager.Instance.gameState.Players[cell.Item1].Characters[cell.Item2];
-                            CharacterStats stats = data.characterStats; // all the base stats are in here, display them
-                            
+                            CharacterStats stats = data.characterStats; 
+                            SetCharacterInfo(stats.hp, stats.damage, stats.attackRange, stats.movementRange);
+                            DisplayCharaterInfo(true);
+
                         }
                     } else if (cell.Item1 == -1){
-                        // Handle spawn action
-                        foreach( Vector2Int spawnLocation in currentPlayerData.SpawnLocations){
+                        DisplayCharaterInfo(false);
+                        foreach ( Vector2Int spawnLocation in currentPlayerData.SpawnLocations){
                             if (clickedCell == spawnLocation){
                                 spawnCell = clickedCell;
-                                // Debug.Log($"Selected spawn location at: Row {spawnCell.Value.y}, Column {spawnCell.Value.x}");
 
                                 // TODO: popup for choosing character to spawn
+
                             }
                         }
                     } else {
-                        // Debug.Log("Illegal action: Select enemy unit");
+                        if (cell.Item2 == -1)
+                        {
+                            // TODO: display Lord stats
+                            SetCharacterInfo(GameConstants.LordHP, GameConstants.LordDmg, -1, 0);
+                            DisplayCharaterInfo(true);
+                        }
+                        else
+                        {
+                            CharacterData data = GameplayManager.Instance.gameState.Players[cell.Item1].Characters[cell.Item2];
+                            CharacterStats stats = data.characterStats; 
+                            SetCharacterInfo(stats.hp, stats.damage, stats.attackRange, stats.movementRange);
+                            DisplayCharaterInfo(true);
+                        }
                     }
                 } else if (sellectedCell.HasValue) {
-                    // Clear buffered click
                     Vector2Int prevCell= sellectedCell.Value;
                     int mappedChar = GameplayManager.Instance.gameState.Cells[prevCell.y][prevCell.x].Item2;
                     sellectedCell = null; 
                     CharacterData CharData = GameplayManager.Instance.gameState.Players[curPlayer].Characters[mappedChar];
                     if (cell.Item1 == -1){
-                        // Move action
+                        DisplayCharaterInfo(false);
                         int Distannce= Utils.ManhattanDistance(prevCell, clickedCell);
                         if (Distannce > CharData.characterStats.movementRange){
-                            // Debug.Log("Illegal move: Out of range");
                         } else {
                             if (CharData.AP > 0 && AP > 0)
                             {
                                 Move NewMove = new Move(prevCell, clickedCell, MoveType.CharMove);
-                                // Debug.Log("Move action: " + NewMove.ToString());
                                 GameplayManager.Instance.ApplyMove(NewMove);
                                 AP -= 1;
-                            } else
-                            {
-                                // Debug.Log("Out of action points");
                             }
                         }
                     } else if (cell.Item1 != curPlayer){
-                        // Attack action
+                        DisplayCharaterInfo(false);
                         int Distannce= Utils.ManhattanDistance(prevCell, clickedCell);
                         if (Distannce > CharData.characterStats.attackRange){
                             Debug.Log("Illegal attack: Out of range");
@@ -227,22 +267,16 @@ public class BattleHandler : MonoBehaviourPunCallbacks
                             if (CharData.AP > 0 && AP > 0)
                             {
                                 Move NewMove = new Move(prevCell, clickedCell, MoveType.CharAttack);
-                                // Debug.Log("Attack action: " + NewMove.ToString());
                                 GameplayManager.Instance.ApplyMove(NewMove);
                                 AP -= 1;
-                            } else
-                            {
-                                // Debug.Log("Out of action points");
                             }
                         }
                     } else {
-                        // Select another unit 
                         sellectedCell = clickedCell;
-                        // Debug.Log($"Selected another unit at: Row {sellectedCell.Value.y}, Column {sellectedCell.Value.x}");
-
-                        // TODO: display unit info
                         CharacterData data = GameplayManager.Instance.gameState.Players[cell.Item1].Characters[cell.Item2];
-                        CharacterStats stats = data.characterStats; // all the base stats are in here, display them
+                        CharacterStats stats = data.characterStats; 
+                        SetCharacterInfo(stats.hp, stats.damage, stats.attackRange, stats.movementRange);
+                        DisplayCharaterInfo(true);
                     }
                 }
  
@@ -282,5 +316,21 @@ public class BattleHandler : MonoBehaviourPunCallbacks
             return;
         }
         currentPlayer = playerPool[nextIdx];
+    }
+
+    private void DisplayCharaterInfo(bool display)
+    {
+        charDmg.SetActive(display);
+        charHP.SetActive(display);
+        charAttackRange.SetActive(display);
+        charMovementRange.SetActive(display);
+    }
+
+    private void SetCharacterInfo(int hp, int damage, int attackRange, int movementRange)
+    {
+        charDmg.GetComponent<Text>().text = "Damage: " + damage;
+        charHP.GetComponent<Text>().text = "HP: " + hp;
+        charAttackRange.GetComponent<Text>().text = "Attack Range: " + attackRange;
+        charMovementRange.GetComponent<Text>().text = "Movement Range: " + movementRange;
     }
 }

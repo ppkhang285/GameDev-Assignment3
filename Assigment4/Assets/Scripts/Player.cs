@@ -27,5 +27,18 @@ public class Player : MonoBehaviour
         Location = location;
 
         Data = new PlayerData(playerNo, type, characters.Select(p => p.GetComponent<Character>().Data).ToArray(), location);
+        
+        if (location.y != 0)
+        {
+            gameObject.GetComponent<SpriteRenderer>().flipX = true;
+        }
+    }
+
+    public void RestoreAP()
+    {
+        foreach (GameObject character in characters)
+        {
+            character.GetComponent<Character>().UpdateStats();
+        }
     }
 }

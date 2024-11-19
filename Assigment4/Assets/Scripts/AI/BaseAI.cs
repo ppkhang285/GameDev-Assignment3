@@ -32,8 +32,8 @@ public abstract class BaseAI
         else
         {
             // Use default evaluation function
-            float[] evaluations = new float[gameplayManager.NumPlayer];
-            for (int i = 0; i < gameplayManager.NumPlayer; i++)
+            float[] evaluations = new float[GameplayManager.ExtNumberPlayer];
+            for (int i = 0; i < GameplayManager.ExtNumberPlayer; i++)
             {
                 evaluations[i] = 0;
             }

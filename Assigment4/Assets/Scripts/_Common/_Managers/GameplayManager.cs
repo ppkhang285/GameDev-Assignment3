@@ -10,21 +10,21 @@ public class GameplayManager : MonoBehaviour
     public BattleHandler battleHandler;
     public static GameplayManager Instance { get; private set; }
     // Adding Player Info through this
-    public static int ExtNumberPlayer = 2;
-    public static int ExtChosenDeck; // (PlayerType, PlayerDeck)
+    public static bool isPVP {get; set;}
+    public static int ExtNumberPlayer {get; set;}
+    public static int ExtChosenDeck {get; set;}
+    
 
-    public static string ExtLevel = "Easy"; 
+    public static string ExtLevel; 
     public int DeckSize { get; private set; }
     public int BoardSize { get; private set; }
-    public int NumPlayer { get; private set; }
     public GameObject[] players;
-    //private Character [][] pieces;
     public GameState gameState;
     //private bool[] defeated;
-    public const int MyPlayer = 0;
+    // public const int MyPlayer = 0;
     public BaseAI AI;
+    public string SelectedGameOverCanvas;
 
-    
     private void Awake()
     {
         if (Instance == null)
@@ -38,43 +38,69 @@ public class GameplayManager : MonoBehaviour
 
         DeckSize = GameConstants.DeckSize;
         BoardSize = GameConstants.BoardSize;
-        NumPlayer = 2; // TODO: receive num player from other scenes
-        players = new GameObject[NumPlayer];
-        Vector2Int[] locations = new Vector2Int[NumPlayer];
 
-        if (NumPlayer < 2 || NumPlayer > 4)
+        players = new GameObject[ExtNumberPlayer];
+        Vector2Int[] locations = new Vector2Int[ExtNumberPlayer];
+
+        SelectedGameOverCanvas = "";
+        if (ExtNumberPlayer < 2 || ExtNumberPlayer > 4)
         {
             throw new System.Exception("Invalid number of players");
         } else {
             locations[0] = new Vector2Int(0, 0);
-            if (NumPlayer == 2)
+            if (ExtNumberPlayer == 2)
             {
                 locations[1] = new Vector2Int(BoardSize - 1, BoardSize - 1);
-            } else if (NumPlayer == 3)
+            } else if (ExtNumberPlayer == 3)
             {
                 locations[1] = new Vector2Int(BoardSize - 1, 0);
                 locations[2] = new Vector2Int(0, BoardSize - 1);
             } else
             {
                 locations[1] = new Vector2Int(BoardSize - 1, 0);
-                locations[2] = new Vector2Int(0, BoardSize - 1);
-                locations[3] = new Vector2Int(BoardSize - 1, BoardSize - 1);
+                locations[2] = new Vector2Int(BoardSize - 1, BoardSize - 1);
+                locations[3] = new Vector2Int(0, BoardSize - 1);
             }
         }
-        for (int i = 0; i < NumPlayer; i++)
+        if (!isPVP)
         {
-            // GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Lords/Lord_" + i.ToString() + ".prefab");
-            GameObject prefab = Resources.Load<GameObject>("Lords/Lord_" + i.ToString());
-            players[i] = Instantiate(prefab);
-            Player player = players[i].GetComponent<Player>();
-            player.Initialize(i, i, PlayerType.Human, locations[i]);
-            prefab.transform.position = battleHandler.Spawner.GetWorldPosition(locations[i]);
+            for (int i = 0; i < ExtNumberPlayer; i++)
+            {
+                GameObject prefab = Resources.Load<GameObject>("Lords/Lord_" + i.ToString());
+                players[i] = Instantiate(prefab);
+                Player player = players[i].GetComponent<Player>();
+                if (i == 0)
+                    player.Initialize(i, ExtChosenDeck, PlayerType.Human, locations[i]); // TODO: initialize player with correct deck and correct type
+                else
+                {
+                    bool random = UnityEngine.Random.value >= 0.5;
+                    if (random)
+                        player.Initialize(i, 0 , PlayerType.AI, locations[i]);
+                    else
+                        player.Initialize(i, 1, PlayerType.AI, locations[i]);
+                }
+                players[i].transform.position = battleHandler.Spawner.GetWorldPosition(locations[i]);
+            }
+        } else
+        {
+            for (int i = 0; i < ExtNumberPlayer; i++)
+            {
+                GameObject prefab = Resources.Load<GameObject>("Lords/Lord_" + i.ToString());
+                players[i] = Instantiate(prefab);
+                Player player = players[i].GetComponent<Player>();
+                bool random = UnityEngine.Random.value >= 0.5;
+                if (random)
+                    player.Initialize(i, 0, PlayerType.Human, locations[i]);
+                else
+                    player.Initialize(i, 1, PlayerType.Human, locations[i]);
+                players[i].transform.position = battleHandler.Spawner.GetWorldPosition(locations[i]);
+            }
         }
 
-        string level = "Easy";
-        if (level == "Easy")
+
+        if (ExtLevel == "Easy")
             AI = new RandomAI(100, 1.0f);
-        if (level == "Normal")
+        if (ExtLevel == "Normal")
             AI = new MinimaxAI(3, 10, 0.0f, 30.0f);
 
         (int, int, int)[][] cells = new (int, int, int)[BoardSize][];
@@ -93,8 +119,8 @@ public class GameplayManager : MonoBehaviour
             }
         }
 
-        bool[] defeated = new bool[NumPlayer];
-        for (int i = 0; i < NumPlayer; i++)
+        bool[] defeated = new bool[ExtNumberPlayer];
+        for (int i = 0; i < ExtNumberPlayer; i++)
         {
             defeated[i] = false;
         }
@@ -104,9 +130,6 @@ public class GameplayManager : MonoBehaviour
 
     private void Start()
     {
-        // Init here
-        NumPlayer = 2;
-
         battleHandler.StartGameLoop();
     }
 
@@ -115,6 +138,7 @@ public class GameplayManager : MonoBehaviour
         gameState.Turn += 1;
         int currentPlayer = battleHandler.GetCurrentPlayer();
         gameState.ChangeTurn(currentPlayer, GameConstants.EnergyPerTurn);
+        players[currentPlayer].GetComponent<Player>().RestoreAP();
     }
 
     public int GetNextPlayer(int currentPlayer)
@@ -143,9 +167,11 @@ public class GameplayManager : MonoBehaviour
         int charIndex = gameState.Cells[move.Source.y][move.Source.x].Item2;
         GameObject character = players[player].GetComponent<Player>().characters[charIndex]; // Get the character that needs to move
         bool direction = destination.x > start.x;
+        character.GetComponent<Character>().Data.AP -= 1;
         character.GetComponent<Character>().CharMove(direction);
+        character.GetComponent<Character>().Data.AP += 1;
         character.transform.position = destination;
-        // TODO: add moving anim
+
     }
 
     public void ApplyCharAttack(Move move)
@@ -156,7 +182,9 @@ public class GameplayManager : MonoBehaviour
         int charIndex = gameState.Cells[move.Source.y][move.Source.x].Item2;
         GameObject character = players[player].GetComponent<Player>().characters[charIndex]; // Get the character that needs to attack
         bool direction = destination.x > start.x;
+        character.GetComponent<Character>().Data.AP -= 1;
         character.GetComponent<Character>().CharAttack(direction);
+        character.GetComponent<Character>().Data.AP += 1;
 
         int targetPlayer = gameState.Cells[move.Target.y][move.Target.x].Item1; // Get the player that receives the attack
         int targetIndex = gameState.Cells[move.Target.y][move.Target.x].Item2;
@@ -166,9 +194,14 @@ public class GameplayManager : MonoBehaviour
             if (targetCharacter.GetComponent<Character>().Data.CurrentHP <= character.GetComponent<Character>().Data.characterStats.damage)
             {
                 targetCharacter.GetComponent<SpriteRenderer>().enabled = false;
+                targetCharacter.GetComponent<Character>().bar.bar.SetActive(false);
+            } else
+            {
+                targetCharacter.GetComponent<Character>().Data.CurrentHP -= character.GetComponent<Character>().Data.characterStats.damage;
+                targetCharacter.GetComponent<Character>().TakeDmg();
+                targetCharacter.GetComponent<Character>().Data.CurrentHP += character.GetComponent<Character>().Data.characterStats.damage;
             }
         }
-        // TODO: add attacking anim
     }
 
     public void ApplySpawn(Move move)
@@ -179,7 +212,9 @@ public class GameplayManager : MonoBehaviour
         GameObject character = players[player].GetComponent<Player>().characters[charIndex]; // Get the character that needs to spawn
         character.transform.position = destination;
         character.GetComponent<SpriteRenderer>().enabled = true;
-        // TODO: add spawn anim
+        character.GetComponent<Character>().bar.bar.SetActive(true);
+        character.GetComponent<Character>().Data.AP = 1;
+        character.GetComponent<Character>().UpdateStats();
     }
 
 
