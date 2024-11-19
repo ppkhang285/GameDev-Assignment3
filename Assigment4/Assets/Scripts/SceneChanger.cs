@@ -7,9 +7,8 @@ public class SceneChanger : MonoBehaviour
 
     public static string level; 
     public static int deckNo;
-
     public static int NoPlayer; // No of enemy
-    public static bool isPVP;
+    public static bool isPVP = true;
 
 
     public void LoadScene(string sceneName)
@@ -24,18 +23,13 @@ public class SceneChanger : MonoBehaviour
         level = lvl;
     }
 
-    public void StartPVP(){
-        GameplayManager.isPVP = true;
-        GameplayManager.ExtChosenDeck = deckNo;
-        MoveToGameplay();
+    public void ChoosePVP(){
+        isPVP = true;
+        NoPlayer = 1;
     }
 
-    public void StartPVE(){
-        GameplayManager.isPVP = false;
-        GameplayManager.ExtChosenDeck = deckNo;
-        GameplayManager.ExtLevel = level;
-        GameplayManager.ExtNumberPlayer = NoPlayer + 1;    
-        MoveToGameplay();
+    public void ChoosePVE(){
+        isPVP = false;    
     }
 
     public void SetNoNumber(int No) {
@@ -43,6 +37,20 @@ public class SceneChanger : MonoBehaviour
     }
 
     public void MoveToGameplay() {
+        GameplayManager.isPVP = isPVP;
+        GameplayManager.ExtChosenDeck = deckNo;
+        GameplayManager.ExtLevel = level;
+        GameplayManager.ExtNumberPlayer = NoPlayer + 1; 
         LoadScene("Gameplay");
     }
+
+    public  void AfterdeckChoose(){
+        if (isPVP) {
+            LoadScene("LobbyMenu");
+        } else {
+           MoveToGameplay();
+        }
+
+    }
+
 }
