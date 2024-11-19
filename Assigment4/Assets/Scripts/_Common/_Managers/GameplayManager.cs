@@ -81,6 +81,20 @@ public class GameplayManager : MonoBehaviour
                 }
                 players[i].transform.position = battleHandler.Spawner.GetWorldPosition(locations[i]);
             }
+        } else
+        {
+            for (int i = 0; i < ExtNumberPlayer; i++)
+            {
+                GameObject prefab = Resources.Load<GameObject>("Lords/Lord_" + i.ToString());
+                players[i] = Instantiate(prefab);
+                Player player = players[i].GetComponent<Player>();
+                bool random = UnityEngine.Random.value >= 0.5;
+                if (random)
+                    player.Initialize(i, 0, PlayerType.Human, locations[i]);
+                else
+                    player.Initialize(i, 1, PlayerType.Human, locations[i]);
+                players[i].transform.position = battleHandler.Spawner.GetWorldPosition(locations[i]);
+            }
         }
 
 

@@ -66,6 +66,8 @@ public class BattleHandler : MonoBehaviour
         for (int i = 0; i < playerNum; i++)
         {
             playerPool[i] = (PlayerTurn)i;
+            GameObject player = GameplayManager.Instance.players[i];
+            player.transform.position = Spawner.GetWorldPosition(player.GetComponent<Player>().Data.LordLocation);
         }
 
         currentState = GameplayState.Start;
@@ -124,7 +126,7 @@ public class BattleHandler : MonoBehaviour
                 else
                     GameplayManager.Instance.SelectedGameOverCanvas = "Victory Scene 1 vs 1 vs 1 vs 1";
             }
-        } 
+        } // TODO: check for PVP
 
         SceneManager.LoadScene("GameOverMenu");
     }
