@@ -70,8 +70,9 @@ public class NetworkBattleHandler : BattleHandler
             }
 
             if (PhotonNetwork.IsMasterClient){
-                Debug.LogError("master client call change turn");
-                ChangeTurn();
+                Debug.LogError("master client call change turn to all");
+                photonView.RPC("RPC_ChangeTurn", RpcTarget.All);
+
             }
         }
 
@@ -82,18 +83,10 @@ public class NetworkBattleHandler : BattleHandler
         Debug.LogError("i receive end turn.");
         turnEndRequested = true;
     }
-    protected override void ChangeTurn()
+    [PunRPC]
+    protected void RPC_ChangeTurn()
     {
         base.ChangeTurn(); // Call the base method to switch turns
-
-        // Notify other players that it's the next player's turn
-        Debug.LogError("new player turn is: "+currentPlayer.ToString());
-        photonView.RPC("RPC_UpdateTurn", RpcTarget.Others, currentPlayer.ToString());
-    }
-    [PunRPC]
-    private void RPC_UpdateTurn(string playerTurn)
-    {
-        currentPlayer = (PlayerTurn)System.Enum.Parse(typeof(PlayerTurn), playerTurn);
     }
 
     
