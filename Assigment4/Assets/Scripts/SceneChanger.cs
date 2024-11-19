@@ -25,7 +25,7 @@ public class SceneChanger : MonoBehaviour
 
     public void ChoosePVP(){
         isPVP = true;
-        NoPlayer = 1;
+        GameplayManager.ExtNumberPlayer = 2;
     }
 
     public void ChoosePVE(){

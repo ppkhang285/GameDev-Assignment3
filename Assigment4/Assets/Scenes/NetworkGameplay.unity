@@ -170,6 +170,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Spawner: {fileID: 344159714}
+  charDmg: {fileID: 0}
+  charHP: {fileID: 0}
+  charAttackRange: {fileID: 0}
+  charMovementRange: {fileID: 0}
   endTurnButton: {fileID: 373926861}
 --- !u!114 &216656414
 MonoBehaviour:
@@ -307,6 +311,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   panelPrefab: {fileID: 8404343336898392271, guid: cc50c1e3cf9b52346b6f35c7f37e1599, type: 3}
+  spawnPanelPrefab: {fileID: 8404343336898392271, guid: cce4618ae00f535448004120ee76587a, type: 3}
   field: {fileID: 691581233}
 --- !u!4 &344159715
 Transform:
@@ -609,6 +614,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   battleHandler: {fileID: 216656413}
   players: []
+  SelectedGameOverCanvas: 
 --- !u!4 &1592180958
 Transform:
   m_ObjectHideFlags: 0
